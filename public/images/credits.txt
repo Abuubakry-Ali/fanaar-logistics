@@ -5,3 +5,17 @@ https://unsplash.com/photos/green-cargo-ship-on-body-of-water-5Rlrs3sKVJU
 
 zanzibar-dhow.jpg: Aron Marinelli / Unsplash
 https://unsplash.com/photos/a-sailboat-with-people-on-it-in-the-ocean-U8Z9TthY8r4
+
+tanzania-service-map.svg: Made with Natural Earth.
+Geographic outlines, lakes and city positions use Natural Earth 1:10 million
+countries, lakes and populated places data, adapted for a Tanzania overview
+and enlarged coastal view. Natural Earth map data is in the public domain.
+https://www.naturalearthdata.com/
+https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-admin-0-countries/
+https://www.naturalearthdata.com/downloads/10m-physical-vectors/10m-lakes/
+https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-populated-places/
+https://www.naturalearthdata.com/about/terms-of-use/
+
+The map highlights Dar es Salaam, Tanga, Unguja and Pemba as service
+locations. Route availability is listed separately on the website. The
+geographic outlines are generalized for display and intended for orientation.
