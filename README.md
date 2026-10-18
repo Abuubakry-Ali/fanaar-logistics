@@ -2,7 +2,7 @@
 
 A responsive React website for sea cargo from Dar es Salaam to Zanzibar, Zanzibar to Dar es Salaam, and Zanzibar to Tanga. Built with Vite, React, Lucide icons, and locally hosted Manrope fonts and photography.
 
-The website can run entirely on GitHub Pages. It needs no application server, database, or API keys. Trixa handles quote submission and shipment tracking on its own website.
+The source repository is private. Website hosting has not been enabled yet. The website needs no application server, database, or API keys; Trixa handles quote submission and shipment tracking on its own website.
 
 ## Run locally
 
@@ -15,12 +15,18 @@ npm run dev
 
 ## Publish on GitHub Pages
 
-1. Create a GitHub repository and put the **contents of this folder** at its root. Include `package.json`, `package-lock.json`, `src`, `public`, and the hidden `.github` folder. Do not upload `node_modules` or `dist`.
-2. In the repository, open **Settings → Pages**. Under **Build and deployment → Source**, choose **GitHub Actions**. This is the publishing source required for the included workflow. See [GitHub's publishing instructions](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
-3. Push the website files to the `main` branch. The included **Deploy to GitHub Pages** workflow installs dependencies with `npm ci`, builds the website, and publishes `dist`.
-4. Open the repository's **Actions** tab and wait for **Deploy to GitHub Pages** to finish. Open the website URL shown in the deployment or in **Settings → Pages**.
+**Current status: private source repository; hosting pending.** Pushes to `main` run the **Build** workflow to check that the website builds. They do not publish a website. The separate **Deploy to GitHub Pages** workflow runs only when started manually.
 
-Every later push to `main` rebuilds and publishes the website automatically. To publish again without changing a file, go to **Actions → Deploy to GitHub Pages → Run workflow** and select `main`.
+GitHub Pages requires an eligible paid plan when the source repository is private: GitHub Pro for a personal account, or an eligible GitHub Team or Enterprise plan for an organization. GitHub Free supports Pages from public repositories. See [GitHub's Pages plan requirements](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages). Keep the source repository private unless you choose to change its visibility.
+
+When an eligible hosting plan is available:
+
+1. Keep the website files at the repository root, including `package.json`, `package-lock.json`, `src`, `public`, and the hidden `.github` folder. Do not upload `node_modules` or `dist`.
+2. Open **Settings → Pages**. Under **Build and deployment → Source**, choose **GitHub Actions**. See [GitHub's publishing instructions](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+3. Go to **Actions → Deploy to GitHub Pages → Run workflow**, select `main`, and start the workflow. It installs dependencies with `npm ci`, builds the website, and publishes `dist`.
+4. Wait for the deployment to finish, then open the website URL shown in the deployment or in **Settings → Pages**.
+
+For later website updates, push the changes to `main`, wait for **Build** to pass, then run **Deploy to GitHub Pages** manually. Until hosting is enabled, changes remain available in the private repository and local previews.
 
 The workflow reads the site's path from GitHub Pages and sets `VITE_BASE_PATH` automatically. This supports both a project URL such as `https://YOUR-USERNAME.github.io/fanaar-logistics/` and a site at the domain root. Keep the workflow at `.github/workflows/deploy-pages.yml` in the repository root. Its configure, upload, and deployment steps follow [GitHub's custom workflow guidance](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
@@ -39,7 +45,7 @@ Replace the entire example text with your actual number. Use the international f
 
 The configured number appears directly in the top bar on desktop and mobile. The call and WhatsApp links also activate in the contact options. If only WhatsApp is configured, its number appears in the top bar. Until a number is added, the website shows **Number coming soon**.
 
-Save the file, commit the change, and push it to `main`. GitHub Actions will publish the updated contact information. You can also edit `src/config.js` directly on GitHub and commit to `main`. These are public business contact numbers, so they are stored in the website's source rather than in GitHub Secrets.
+Save the file, commit the change, and push it to `main`. The **Build** workflow will check the update. Once hosting is enabled, run **Deploy to GitHub Pages** manually to publish the new contact information. You can also edit `src/config.js` directly on GitHub and commit to `main`. These are public business contact numbers, so they are stored in the website's source rather than in GitHub Secrets.
 
 ## Quotes and tracking with Trixa
 
@@ -70,7 +76,7 @@ npm run build
 npm run preview
 ```
 
-GitHub Pages sets this automatically through the included workflow. When hosting elsewhere, upload the contents of `dist` after building for the correct path.
+The manual GitHub Pages deployment workflow sets this automatically once Pages is enabled. When hosting elsewhere, upload the contents of `dist` after building for the correct path.
 
 ## Photography and fonts
 
