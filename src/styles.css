@@ -57,3 +57,11 @@
 /* Leave room below staff access for the floating customer contact button. */
 .footer-bottom{padding-bottom:76px}
 @media(max-width:720px){.footer-bottom{padding-bottom:86px}}
+
+/* Geographic country overview and enlarged coastal service area. */
+.coast-map{object-fit:contain}
+.map-top{font-size:8px}
+.map-top>span:last-child{font-size:7px}
+.map-bottom{font-size:8px}
+.map-bottom>span:last-child{font-size:7px}
+@media(max-width:720px){.map-panel{min-height:340px}.map-top{font-size:8px}.map-bottom{font-size:8px}.map-bottom>span:last-child{font-size:7px}}
