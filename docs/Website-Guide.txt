@@ -24,17 +24,20 @@ QUICK FIND
 1  CURRENT STATUS AND IMPORTANT ADDRESSES
 ==========================================================================
 
-Private source repository:
+Public source repository:
 https://github.com/Abuubakry-Ali/fanaar-logistics
 
-The complete React website is stored in this PRIVATE repository. Its Build
-workflow has passed. GitHub Pages hosting has not been enabled: the current
-GitHub plan does not support Pages from a private repository. For this
-personal account, GitHub Pro would enable that option. Keep repository
-visibility Private. Netlify is an option to consider later, not configured.
+The complete React website is stored in this PUBLIC repository. Its Build
+and deployment workflows passed. The website is live on free GitHub Pages
+and was verified in a browser on 18 October 2026. GitHub Free supports Pages
+from public repositories; the earlier private-repository plan restriction
+no longer applies.
+
+Live GitHub Pages address, verified:
+https://abuubakry-ali.github.io/fanaar-logistics/
 
 The preview is a separate deployment. Saving a file on GitHub does not update
-that existing preview. A future GitHub Pages site has its own deployment.
+that existing preview. The GitHub Pages site has its own manual deployment.
 
 Current Trixa customer tracking page:
 https://cargo.trixa.net/t/5d2e73922193/
@@ -56,10 +59,10 @@ until the provider permits your actual website origin and the live quote form
 has been tested inside the frame. The supplied portal displays Ruvuma Branch;
 its account branding and records are managed in Trixa.
 
-Source privacy and public websites are different. The GitHub source repository
-stays private, but any public website sends its built HTML, JavaScript, CSS
-and images to visitors' browsers. Do not put passwords, private keys or admin
-credentials in frontend files. The footer shortcut goes to Trixa's own login.
+The GitHub source repository is public. The public website also sends its
+built HTML, JavaScript, CSS and images to visitors' browsers. Do not put
+passwords, private keys or admin credentials in frontend files. The footer
+shortcut goes to Trixa's own login.
 
 ==========================================================================
 2  WEBSITE STRUCTURE AND EVERY PROJECT FILE
@@ -164,7 +167,8 @@ vite.config.js
 .github/workflows/deploy-pages.yml
   Manual GitHub Pages deployment. It gets the Pages base path, installs,
   builds, uploads dist and deploys the site. It requires Pages to be enabled
-  on an eligible account plan. It does not currently run on every push.
+  with GitHub Actions as the source. It does not run on every push. The
+  public repository can use GitHub Pages on GitHub Free.
 
 .gitignore
   Excludes node_modules, dist and local environment files from Git. Do not
@@ -187,7 +191,7 @@ Generated folders on your computer
 3  ADD OR CHANGE THE PHONE AND WHATSAPP NUMBERS
 ==========================================================================
 
-1. Sign in to GitHub and open the private Fanaar repository.
+1. Sign in to GitHub and open the Fanaar repository.
 2. Open src, then config.js. Use the pencil or Edit this file action.
 3. Find this block:
 
@@ -278,9 +282,10 @@ Admin login
 ==========================================================================
 
 Install Node.js 22 from its official source if it is not already available.
-Clone the private repository while signed into GitHub with your own account,
-or use Code > Download ZIP and extract it. Open a terminal in the folder that
-contains package.json. Do not run commands inside the outer ZIP folder.
+Clone the public repository, or use Code > Download ZIP and extract it.
+Sign into GitHub with your own account when you need to push changes.
+Open a terminal in the folder that contains package.json. Do not run commands
+inside the outer ZIP folder.
 
 Install the versions in package-lock.json:
   npm ci
@@ -318,7 +323,7 @@ settings. No source code needs a hard-coded custom domain for image paths.
 ==========================================================================
 
 GitHub edits
-1. Open the intended source file in the private repository and select Edit.
+1. Open the intended source file in the Fanaar repository and select Edit.
 2. Make the change. Use a short factual commit message and save to main.
 3. Open Actions > Build. Check the newest run for your commit and wait for
    success. If it fails, open the failed job and repair the reported error.
@@ -329,9 +334,9 @@ Local edits
 2. Commit source and package-lock.json when it changes. Exclude node_modules
    and dist. Then check Actions > Build as above.
 
-Publish on GitHub Pages once the account is eligible
+Publish on GitHub Pages
 1. Open repository Settings > Pages. Under Build and deployment > Source,
-   select GitHub Actions. The account upgrade is handled by the owner.
+   select GitHub Actions. The public repository supports free Pages hosting.
 2. Open Actions > Deploy to GitHub Pages > Run workflow. Choose main.
 3. Wait for both the build and deploy jobs to succeed.
 4. Open the website URL from the deployment or Settings > Pages. Use that
@@ -339,21 +344,22 @@ Publish on GitHub Pages once the account is eligible
 5. Check the live number, image loading, tracking, quote link and admin link.
 
 Repeat the manual deployment after future source changes. The separate
-Build workflow never publishes by itself. There is no live GitHub Pages
-site until the plan restriction is resolved and deployment succeeds.
+Build workflow never publishes by itself. The current live website is
+https://abuubakry-ali.github.io/fanaar-logistics/ . After each deployment,
+check that address to confirm the update is visible.
 
 Optional later hosting elsewhere
   This is a static Vite site. A static host generally runs npm run build
-  and publishes dist with base /. Keep the source repo private and grant
-  only the repository access you choose. Use that host's current domain
-  settings and DNS instructions. Netlify is not connected at present.
+  and publishes dist with base /. Grant only the repository access you
+  choose. Use that host's current domain settings and DNS instructions.
+  Netlify is not connected at present.
 
 ==========================================================================
 7  ADD OR CHANGE THE CUSTOM DOMAIN
 ==========================================================================
 
-This procedure is for GitHub Pages after hosting is enabled. Replace
-example.com with a domain you own; it is only an example.
+The website is already hosted on GitHub Pages. Use this procedure to add a
+custom domain. Replace example.com with a domain you own; it is only an example.
 
 1. In personal GitHub Settings > Pages, add and verify your domain using the
    exact TXT record GitHub supplies. Keep that TXT record.
@@ -765,7 +771,7 @@ Install dependencies if needed with npm ci. Run npm run build. With EMBED_TRIXA 
 
 Verify: every quote button including the one inside Contact us; quote form field validation; a known tracking reference and phone number; an unknown reference; Close button; Escape when focus is on Fanaar controls; keyboard focus after close; body scroll restoration; narrow mobile layouts; and the Open separately fallback. Escape pressed while focus is inside the cross-origin frame may be handled there, so the visible Close button must remain available. Confirm that Admin login still opens externally. Coordinate one clearly marked test enquiry with Trixa and confirm it arrives in the intended account. A form merely displaying is not proof that its CSRF/session submission works. Do not submit customer data for a connectivity test.
 
-Commit and push source changes to main. Wait for the Build workflow to pass. Once GitHub Pages is enabled for the account/repository and Settings > Pages > Source is GitHub Actions, open Actions > Deploy to GitHub Pages > Run workflow, select main, and run it. Publishing is manual in this export: pushing main runs Build but does not deploy. Wait for the deployment to succeed, then open the published URL and check it. Update README's Trixa section to explain the feature flag, the manual Close control, and the external fallback rather than saying embedding is always blocked. Store this guide outside public assets; no server credentials or tokens belong in it.
+Commit and push source changes to main. Wait for the Build workflow to pass. GitHub Pages is enabled with GitHub Actions as its source. Open Actions > Deploy to GitHub Pages > Run workflow, select main, and run it. Publishing is manual in this export: pushing main runs Build but does not deploy. Wait for the deployment to succeed, then open the published URL and check it. Update README's Trixa section to explain the feature flag, the manual Close control, and the external fallback rather than saying embedding is always blocked. Store this guide outside public assets; no server credentials or tokens belong in it.
 
 If embedding fails later, set EMBED_TRIXA back to false, commit, and push to main. Wait for Build to pass, then run Actions > Deploy to GitHub Pages > Run workflow on main and wait for it to finish. The published site restores popup/new-tab behavior only after that manual deployment succeeds. The same quote links and tracking form provide the fallback without removing the new module. Keep src/portal.js for that fallback.
 
@@ -792,10 +798,11 @@ The top number opens WhatsApp instead of calling
   Configure CONTACT.phone. A WhatsApp-only configuration intentionally uses
   the WhatsApp link in the top bar. Check the full international number.
 
-GitHub Pages says upgrade or make the repository public
-  This is the account plan restriction. Keep the repository private. The
-  owner must obtain an eligible plan, or choose another static host later.
-  Changing the domain does not bypass the restriction.
+GitHub Pages still says upgrade or make the repository public
+  The owner has approved public source. Confirm that you are viewing the
+  correct public repository and refresh Settings > Pages after the visibility
+  change. GitHub Free supports Pages from public repositories. Select GitHub
+  Actions as the publishing source and run the manual deployment.
 
 Blank page or missing photos after publishing
   Check that dist was built for the correct base path. The project subfolder
@@ -846,7 +853,7 @@ Before any release
   [ ] Check keyboard navigation, Escape, dialog close and focus return.
   [ ] Check the separate-page fallback, mobile scrolling and cookie limits.
   [ ] Confirm the Build check and actual deployment both succeeded.
-  [ ] Record the live URL and keep the private repository private.
+  [ ] Verify the live website and record its actual published URL.
 
 ==========================================================================
 11  REFERENCE LINKS
@@ -856,7 +863,7 @@ Product screens and policies can change. These official references were
 checked for this guide on 18 October 2026. Domain and provider settings should
 be reviewed when you actually make the change.
 
-Fanaar private source
+Fanaar public source
 https://github.com/Abuubakry-Ali/fanaar-logistics
 
 GitHub Pages availability
