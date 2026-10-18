@@ -1,0 +1,892 @@
+FANAAR LOGISTICS WEBSITE MAINTENANCE GUIDE
+Prepared 18 October 2026
+
+This guide explains the current website, where to change its content, how to
+publish updates, how to connect a custom domain, and how to add an in-page
+Trixa popup after Trixa enables embedding. It is written for the website owner
+and the person maintaining the React code. Open this UTF-8 text file in
+Notepad, Visual Studio Code, or Word. Code examples use plain quotation marks.
+
+QUICK FIND
+1  Current status and important addresses
+2  Website structure and every project file
+3  Add or change the phone and WhatsApp numbers
+4  Change routes, wording, photos, colours and the admin link
+5  Run and check the website on your computer
+6  Save changes on GitHub and publish an update
+7  Add or change the custom domain
+8  Prepare for Trixa embedding
+9  Exact future embedding changes and checks
+10 Troubleshooting and recovery
+11 Reference links
+
+==========================================================================
+1  CURRENT STATUS AND IMPORTANT ADDRESSES
+==========================================================================
+
+Private source repository:
+https://github.com/Abuubakry-Ali/fanaar-logistics
+
+The complete React website is stored in this PRIVATE repository. Its Build
+workflow has passed. GitHub Pages hosting has not been enabled: the current
+GitHub plan does not support Pages from a private repository. For this
+personal account, GitHub Pro would enable that option. Keep repository
+visibility Private. Netlify is an option to consider later, not configured.
+
+Existing preview:
+https://fanaar-logistics.superbarry8.chatgpt.site/
+
+The preview is a separate deployment. Saving a file on GitHub does not update
+that existing preview. A future GitHub Pages site has its own deployment.
+
+Current Trixa customer tracking page:
+https://cargo.trixa.net/t/5d2e73922193/
+
+Current Trixa quote page:
+https://cargo.trixa.net/t/5d2e73922193/enquiry/
+
+Staff login destination:
+https://cargo.trixa.net/
+
+Today, quotes and tracking open Trixa in a separate popup window on desktop
+when the browser permits it. Mobile browsers and blocked popups use a normal
+new tab. Customers close that window or tab to return to Fanaar. Trixa handles
+the actual quote submission and tracking result. Fanaar has no separate
+application server, database, email service or API key.
+
+Trixa currently blocks embedding. Do not activate the future iframe changes
+until the provider permits your actual website origin and the live quote form
+has been tested inside the frame. The supplied portal displays Ruvuma Branch;
+its account branding and records are managed in Trixa.
+
+Source privacy and public websites are different. The GitHub source repository
+stays private, but any public website sends its built HTML, JavaScript, CSS
+and images to visitors' browsers. Do not put passwords, private keys or admin
+credentials in frontend files. The footer shortcut goes to Trixa's own login.
+
+==========================================================================
+2  WEBSITE STRUCTURE AND EVERY PROJECT FILE
+==========================================================================
+
+Repository root
+  .github/
+    workflows/
+      build.yml
+      deploy-pages.yml
+  public/
+    favicon.svg
+    fonts/
+      manrope-latin.woff2
+      OFL.txt
+    images/
+      cargo-teal.jpg
+      zanzibar-dhow.jpg
+      credits.txt
+  src/
+    config.js
+    main.jsx
+    portal.js
+    styles.css
+  docs/
+    Website-Guide.txt              This guide
+  .gitignore
+  index.html
+  package.json
+  package-lock.json
+  README.md
+  vite.config.js
+
+src/config.js
+  The first place to look for routine settings. Holds CONTACT.phone,
+  CONTACT.whatsapp, TRACKING_URL, QUOTE_URL, ADMIN_LOGIN_URL, the ROUTES array,
+  and the derived whatsappNumber. Change your contact details here once.
+
+src/main.jsx
+  Builds the actual page. Brand draws the logo; QuoteLink controls all quote
+  links; ContactDialog shows phone and WhatsApp choices; CoastMap draws the
+  illustrative route map; faqs holds question and answer text; App contains
+  the navigation, hero image, tracking form, route cards, services, about
+  section, shipping steps, FAQ, call to action, footer and floating contact
+  button. App's handleTracking validates and forwards the reference. The
+  createRoot call at the bottom starts the React application.
+
+src/portal.js
+  openPortalPopup opens the real Trixa page in a separate browser window.
+  It returns false on small screens or if popup creation fails so the normal
+  link or form can open a tab. This is the current external-window behaviour;
+  it does not embed Trixa or read its content.
+
+src/styles.css
+  All styling, colours, layout, phone layouts, dialog appearance and screen
+  size adjustments. The :root variables include --ink, --muted, --orange,
+  --cream and --line. Some styles have later overrides, so inspect matching
+  selectors throughout the file before making a change.
+
+public/favicon.svg
+  The small Fanaar icon in the browser tab. Edit or replace it if the brand
+  icon changes. The inline logo on the page is separate, inside Brand.
+
+public/fonts/manrope-latin.woff2
+  The locally hosted Manrope font used by the page.
+
+public/fonts/OFL.txt
+  The font licence. Keep it with the font when copying or publishing files.
+
+public/images/cargo-teal.jpg
+  Hero photograph of a cargo vessel.
+
+public/images/zanzibar-dhow.jpg
+  Photograph in the about section.
+
+public/images/credits.txt
+  Photography sources and attribution notes. Update when replacing photos.
+
+index.html
+  The HTML shell. Change the browser title, search-description text and
+  theme colour here. It contains the root element into which React renders.
+
+package.json
+  Project name, scripts and dependency declarations. "private": true here
+  prevents accidental npm package publication; GitHub repository privacy is
+  controlled separately in GitHub settings.
+
+package-lock.json
+  Exact dependency versions for repeatable npm ci installations. Keep it
+  committed. Let npm update it when dependencies intentionally change.
+
+vite.config.js
+  Vite development and build settings. VITE_BASE_PATH chooses the deployment
+  subfolder; otherwise the default is /. Local ports are 5173 for development
+  and 4173 for the production preview.
+
+.github/workflows/build.yml
+  Automatically installs dependencies and builds after pushes to main. It
+  can also run manually. A successful check means the code builds; it does
+  not mean the website has been published or that Trixa submissions work.
+
+.github/workflows/deploy-pages.yml
+  Manual GitHub Pages deployment. It gets the Pages base path, installs,
+  builds, uploads dist and deploys the site. It requires Pages to be enabled
+  on an eligible account plan. It does not currently run on every push.
+
+.gitignore
+  Excludes node_modules, dist and local environment files from Git. Do not
+  upload installed dependencies or local credentials.
+
+README.md
+  Short setup and maintenance notes in the repository home page. This guide
+  gives more detailed procedures.
+
+docs/Website-Guide.txt
+  The owner and developer handover instructions. It is outside public, so
+  Vite does not copy it into the customer website.
+
+Generated folders on your computer
+  node_modules contains installed packages; recreate it with npm ci.
+  dist contains the built public website; recreate it with npm run build.
+  Neither folder is editable source or needs to be committed.
+
+==========================================================================
+3  ADD OR CHANGE THE PHONE AND WHATSAPP NUMBERS
+==========================================================================
+
+1. Sign in to GitHub and open the private Fanaar repository.
+2. Open src, then config.js. Use the pencil or Edit this file action.
+3. Find this block:
+
+   export const CONTACT = {
+     phone: '',
+     whatsapp: '',
+   };
+
+4. Put your real business number between the single quotes. This is an
+   EXAMPLE ONLY, not Fanaar's actual number:
+
+   export const CONTACT = {
+     phone: '+255700000000',
+     whatsapp: '255700000000',
+   };
+
+   For a Tanzanian number, use country code 255 and omit the local leading
+   zero. Phone can include the +. WhatsApp should contain international
+   digits only, with no +, spaces or punctuation. Use your complete real
+   number. The two numbers can be the same or different.
+
+5. Leave whatsapp as '' if you only want calls. Leave phone as '' if calls
+   are unavailable. Do not leave a sample number in a published site.
+6. Commit with a clear message such as "Update business contact number".
+7. Wait for the Build check to pass, then publish using section 6.
+8. Check on a phone: the number should be visible in the top bar immediately.
+   Tap the phone link and confirm the device offers a call to the right
+   number. The visitor's device controls whether a call is placed. Desktop
+   computers may require a calling application.
+9. Open Contact us and check the call link and WhatsApp destination too.
+
+If only WhatsApp is configured, the top bar uses that number as a WhatsApp
+link. If you want the top number to make a phone call, configure phone.
+Until a number is configured, the site displays "Number coming soon".
+
+==========================================================================
+4  CHANGE ROUTES WORDING PHOTOS COLOURS AND THE ADMIN LINK
+==========================================================================
+
+Routes
+  Edit ROUTES in src/config.js to change the route cards. Each entry has
+  from, to, code and direction. Current service is Dar es Salaam to Zanzibar,
+  Zanzibar to Dar es Salaam, and Zanzibar to Tanga.
+
+  Route cards are generated from ROUTES. Other route references are written
+  separately in src/main.jsx: the top bar, hero, CoastMap, FAQ and footer.
+  Update these as well if the route network changes. CoastMap is an SVG
+  illustration; changing ROUTES does not redraw it automatically. Also
+  update the description in index.html when necessary.
+
+Wording and company logo
+  Search for the visible wording in src/main.jsx and edit the relevant JSX
+  text. Preserve tags, braces and quotation marks. FAQ content is in faqs.
+  Brand controls the page logo and company lettering. The current page is
+  English; translating it requires reviewing all visible text and labels.
+
+Photos
+  For the simplest replacement, use the same filenames in public/images.
+  Keep the files reasonably small. If the subject changes, update alt text
+  in src/main.jsx. To use a different filename, update the matching image
+  path in src/main.jsx too. Update public/images/credits.txt and README.md
+  for the new source and keep any required licence information.
+
+Colours and spacing
+  Start with :root in src/styles.css. --orange controls many action buttons;
+  --ink controls the main dark colour; --cream controls the light background.
+  Search for individual fixed hex values if a component does not follow a
+  variable. Test contrast, focus outlines and small screens after changes.
+
+Browser tab and search description
+  Change <title> and the description meta tag in index.html. Search engines
+  choose when to refresh their listing; a deployment does not force an
+  immediate search result change.
+
+Trixa account links
+  Change TRACKING_URL or QUOTE_URL in src/config.js only when Trixa supplies
+  the correct replacement. Test with the intended branch/account. Do not
+  guess a tracking API or quote submission endpoint.
+
+Admin login
+  Change ADMIN_LOGIN_URL in src/config.js. The discreet footer link opens
+  that address in a new tab. Its wording and placement are in the footer
+  inside src/main.jsx. It is a shortcut, not an access-control mechanism;
+  Trixa still authenticates staff. Keep staff credentials out of this repo.
+
+==========================================================================
+5  RUN AND CHECK THE WEBSITE ON YOUR COMPUTER
+==========================================================================
+
+Install Node.js 22 from its official source if it is not already available.
+Clone the private repository while signed into GitHub with your own account,
+or use Code > Download ZIP and extract it. Open a terminal in the folder that
+contains package.json. Do not run commands inside the outer ZIP folder.
+
+Install the versions in package-lock.json:
+  npm ci
+
+Start the development server:
+  npm run dev
+
+Open the local address printed by Vite, normally:
+  http://127.0.0.1:5173/
+
+Build the production website:
+  npm run build
+
+Preview that build:
+  npm run preview
+
+Open the address printed by Vite, normally:
+  http://127.0.0.1:4173/
+
+For a manual build under a project subfolder, PowerShell commands are:
+  $env:VITE_BASE_PATH = '/fanaar-logistics/'
+  npm run build
+  npm run preview
+
+Then preview /fanaar-logistics/ on the local preview address. For a custom
+domain served at its root, use / instead of /fanaar-logistics/. Remove an
+old local override when it is no longer needed:
+  Remove-Item Env:VITE_BASE_PATH -ErrorAction SilentlyContinue
+
+The GitHub Pages workflow sets the base path automatically from Pages
+settings. No source code needs a hard-coded custom domain for image paths.
+
+==========================================================================
+6  SAVE CHANGES ON GITHUB AND PUBLISH AN UPDATE
+==========================================================================
+
+GitHub edits
+1. Open the intended source file in the private repository and select Edit.
+2. Make the change. Use a short factual commit message and save to main.
+3. Open Actions > Build. Check the newest run for your commit and wait for
+   success. If it fails, open the failed job and repair the reported error.
+
+Local edits
+1. Use your normal authenticated Git workflow to commit and push changes to
+   main. Do not paste tokens into source files, command examples or docs.
+2. Commit source and package-lock.json when it changes. Exclude node_modules
+   and dist. Then check Actions > Build as above.
+
+Publish on GitHub Pages once the account is eligible
+1. Open repository Settings > Pages. Under Build and deployment > Source,
+   select GitHub Actions. The account upgrade is handled by the owner.
+2. Open Actions > Deploy to GitHub Pages > Run workflow. Choose main.
+3. Wait for both the build and deploy jobs to succeed.
+4. Open the website URL from the deployment or Settings > Pages. Use that
+   actual URL rather than assuming a project address.
+5. Check the live number, image loading, tracking, quote link and admin link.
+
+Repeat the manual deployment after future source changes. The separate
+Build workflow never publishes by itself. There is no live GitHub Pages
+site until the plan restriction is resolved and deployment succeeds.
+
+Optional later hosting elsewhere
+  This is a static Vite site. A static host generally runs npm run build
+  and publishes dist with base /. Keep the source repo private and grant
+  only the repository access you choose. Use that host's current domain
+  settings and DNS instructions. Netlify is not connected at present.
+
+==========================================================================
+7  ADD OR CHANGE THE CUSTOM DOMAIN
+==========================================================================
+
+This procedure is for GitHub Pages after hosting is enabled. Replace
+example.com with a domain you own; it is only an example.
+
+1. In personal GitHub Settings > Pages, add and verify your domain using the
+   exact TXT record GitHub supplies. Keep that TXT record.
+2. In the repository Settings > Pages > Custom domain, enter example.com
+   or www.example.com and save it before changing the website DNS.
+3. At your domain provider, use GitHub's current DNS values. For www, create
+   CNAME www -> Abuubakry-Ali.github.io (no https, slash or repository name).
+   For the root domain, use ALIAS/ANAME -> Abuubakry-Ali.github.io if supported,
+   or the A records below. Preserve unrelated email records.
+
+   Root A records for host @:
+     185.199.108.153
+     185.199.109.153
+     185.199.110.153
+     185.199.111.153
+
+4. Wait for GitHub's DNS check and HTTPS certificate; then enable Enforce
+   HTTPS. DNS and certificate changes may take up to 24 hours.
+5. Run Deploy to GitHub Pages again so Vite uses the domain's root path.
+6. Test the root and www addresses, photos, phone and Trixa links.
+
+With this Actions workflow, no CNAME source file is required. Review current
+GitHub DNS documentation before applying these recorded values. If changing
+an existing domain, verify the new domain first, replace the Pages setting
+and DNS records, and remove obsolete website DNS records when finished.
+
+The custom domain changes the address visitors see. It does not change
+repository visibility or the hosting plan. If Trixa embedding is enabled,
+ask Trixa to allow the new origin too, then retest the embedded form.
+
+==========================================================================
+8  PREPARE FOR TRIXA EMBEDDING
+==========================================================================
+
+What embedding means
+  A real Trixa page appears in an iframe inside a dialog over Fanaar. The
+  customer can still see Fanaar behind it. They fill and submit Trixa's form
+  inside that frame, or view tracking results there. This needs no separate
+  Fanaar server. It is different from recreating Trixa's form in React.
+
+Provider prerequisites
+1. Give Trixa the exact website origin to allow. An origin is scheme and
+   hostname, plus a port when used. For a GitHub project URL, use
+   https://abuubakry-ali.github.io, without /fanaar-logistics/.
+   For your own domain, supply https://example.com and https://www.example.com
+   only if both are actually used. Do not send the example domain as yours.
+2. Ask them to allow both the tracking and enquiry pages listed in section 1,
+   including redirects and the pages reached after submission.
+3. They must adjust their HTTP response headers. A policy example, using an
+   example domain only, is:
+
+   Content-Security-Policy: frame-ancestors 'self' https://example.com;
+
+   Trixa should merge the allowed origins into its existing policy and remove
+   conflicting X-Frame-Options restrictions for these pages. A Fanaar HTML
+   meta tag cannot change the provider's framing policy. ALLOW-FROM is not a
+   current replacement for a proper frame-ancestors policy.
+4. Ask Trixa to test cross-site sessions, CSRF protection and successful
+   enquiry submission inside the iframe. Allowing display alone does not
+   guarantee form submission. Cookie rules, including browser restrictions
+   on third-party cookies, can still block sessions. SameSite=None; Secure
+   may be part of their solution but is not sufficient in every browser.
+   Do not disable CSRF protection to make an iframe work.
+5. Obtain their recommended iframe configuration and confirm the account
+   receiving quotes. Keep a separate-page fallback available.
+
+You do not need CORS permission merely to display a Trixa iframe. Browser
+fetch/API integration is a different approach and requires a provider-
+supported API and appropriate access. This guide uses the existing pages.
+
+If Fanaar's host later adds its own Content-Security-Policy, its frame-src
+must also allow https://cargo.trixa.net. Test the published Fanaar page
+directly. A preview inside someone else's iframe adds extra ancestors that
+Trixa may not permit.
+
+The future changes in section 9 are not active in the current website.
+
+==========================================================================
+9  EXACT FUTURE EMBEDDING CHANGES AND CHECKS
+==========================================================================
+
+Apply this section only after section 8 is complete. Back up or commit the
+current source first. Work on source files, not dist. These instructions match
+the current React app; later structural changes may need a developer review.
+The feature starts disabled so you can build safely before an approved test.
+
+When copying code, copy only the content between the triple-backtick lines;
+do not copy those lines or the js, jsx or css language labels into the file.
+
+9.1  ADD ONE CONFIGURATION FLAG
+
+In src/config.js add the following after ADMIN_LOGIN_URL. Keep all existing exports and business contact settings:
+
+```js
+// Set true only after Trixa allows this website to embed BOTH public pages.
+// Set false and republish at any time to restore popup/new-tab mode.
+export const EMBED_TRIXA = false;
+```
+
+9.2  CREATE src/PortalDialog.jsx WITH THIS COMPLETE CONTENT
+
+```jsx
+import React, { createContext, useCallback, useContext, useEffect, useId, useRef, useState } from 'react';
+import { ExternalLink, X } from 'lucide-react';
+import { EMBED_TRIXA } from './config';
+
+const PortalContext = createContext(null);
+
+export function usePortal() {
+  const openPortal = useContext(PortalContext);
+  if (!openPortal) throw new Error('usePortal must be inside PortalProvider.');
+  return openPortal;
+}
+
+function PortalDialog({ portal, onClose }) {
+  const dialogRef = useRef(null);
+  const headingId = useId();
+  const helpId = useId();
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    if (!dialog.open) dialog.showModal();
+
+    return () => {
+      if (dialog.open) dialog.close();
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
+        previousFocus.focus({ preventScroll: true });
+      }
+    };
+  }, [onClose]);
+
+  return (
+    <dialog
+      ref={dialogRef}
+      className="portal-dialog"
+      aria-labelledby={headingId}
+      aria-describedby={helpId}
+      onCancel={onClose}
+    >
+      <header className="portal-dialog-header">
+        <div>
+          <h2 id={headingId}>{portal.title}</h2>
+          <p id={helpId}>Complete the Trixa page below. Use Close when you are finished.</p>
+        </div>
+        <button type="button" className="portal-close" onClick={onClose} autoFocus>
+          <X size={18} aria-hidden="true" /> Close
+        </button>
+      </header>
+      <iframe
+        key={portal.url}
+        className="portal-frame"
+        src={portal.url}
+        title={`${portal.title} — Trixa`}
+      />
+      <footer className="portal-dialog-footer">
+        <span>If the page does not display or submit, open it separately.</span>
+        <a href={portal.url} target="_blank" rel="noopener noreferrer">
+          Open separately <ExternalLink size={15} aria-hidden="true" />
+        </a>
+      </footer>
+    </dialog>
+  );
+}
+
+export function PortalProvider({ children }) {
+  const [portal, setPortal] = useState(null);
+  const closePortal = useCallback(() => setPortal(null), []);
+
+  const openPortal = useCallback((url, title) => {
+    if (!EMBED_TRIXA || typeof window.HTMLDialogElement?.prototype?.showModal !== 'function') {
+      return false;
+    }
+    setPortal({ url, title });
+    return true;
+  }, []);
+
+  return (
+    <PortalContext.Provider value={openPortal}>
+      {children}
+      {portal && <PortalDialog portal={portal} onClose={closePortal} />}
+    </PortalContext.Provider>
+  );
+}
+```
+
+This deliberately keeps portal state separate from ContactDialog's modal state. A quote opened from the contact dialog closes the contact dialog and opens the portal without its contact-close callback cancelling the portal. The iframe loads only URLs supplied by the code below. No success-message listener is fabricated. The iframe has no sandbox or credentialless attribute: adding restrictions without Trixa's guidance can break its JavaScript, form submission, cookies, or downloads.
+
+9.3  UPDATE src/main.jsx — IMPORTS
+
+Replace the existing config import with:
+
+```jsx
+import { CONTACT, ROUTES, TRACKING_URL, QUOTE_URL, ADMIN_LOGIN_URL, EMBED_TRIXA, whatsappNumber } from './config';
+```
+
+Keep the existing import of openPortalPopup from './portal'. Add this import after it:
+
+```jsx
+import { PortalProvider, usePortal } from './PortalDialog';
+```
+
+9.4  UPDATE src/main.jsx — REPLACE THE ENTIRE QuoteLink FUNCTION
+
+Replace from function QuoteLink(...) through its closing brace immediately before function ContactDialog(...) with:
+
+```jsx
+function QuoteLink({ children, className = '', onNavigate, ...props }) {
+  const openEmbeddedPortal = usePortal();
+
+  function openQuote(event) {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    if (openEmbeddedPortal(QUOTE_URL, 'Get a quote') || openPortalPopup(QUOTE_URL)) {
+      event.preventDefault();
+    }
+    onNavigate?.();
+  }
+
+  return (
+    <a
+      href={QUOTE_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={className}
+      title={EMBED_TRIXA ? 'Opens the Trixa quote form on this page' : 'Opens the Trixa quote form in a separate window'}
+      onClick={openQuote}
+      {...props}
+    >
+      {children}
+    </a>
+  );
+}
+```
+
+All existing quote links now share the same behavior. Normal clicks use the iframe when enabled; Ctrl/Cmd-click and other modified clicks keep the normal external-link behavior. With the flag false, the existing popup/new-tab fallback remains.
+
+9.5  UPDATE src/main.jsx — TRACKING
+
+Add this as the first line inside function App() before its existing state declarations:
+
+```jsx
+const openEmbeddedPortal = usePortal();
+```
+
+Replace the entire existing handleTracking function with:
+
+```jsx
+function handleTracking(event) {
+  const reference = tracking.trim();
+  if (!reference) {
+    event.preventDefault();
+    event.currentTarget.elements.ref.setCustomValidity('Enter a tracking reference or phone number.');
+    event.currentTarget.elements.ref.reportValidity();
+    return;
+  }
+
+  const destination = new URL(TRACKING_URL);
+  destination.searchParams.set('ref', reference);
+  if (openEmbeddedPortal(destination.href, 'Track your package') || openPortalPopup(destination.href)) {
+    event.preventDefault();
+  }
+}
+```
+
+Keep the tracking form's action, method="get", target="_blank", rel, input name="ref", and onChange logic as they are. They preserve the native form fallback. URLSearchParams encodes phone numbers, spaces, + signs, and references correctly. Do not add quote-form query prefilling: the inspected enquiry page ignores name, phone, cargo, route, and message query parameters.
+
+9.6  UPDATE src/main.jsx — ROOT WRAPPER
+
+At the bottom, replace this exact line:
+
+```jsx
+createRoot(document.getElementById('root')).render(<App/>);
+```
+
+with:
+
+```jsx
+createRoot(document.getElementById('root')).render(
+  <PortalProvider>
+    <App />
+  </PortalProvider>
+);
+```
+
+Leave App's existing ContactDialog rendering and its state unchanged. Leave the Admin login anchor unchanged; staff login should continue opening the normal external Trixa page.
+
+9.7  APPEND THIS COMPLETE CSS TO THE END OF src/styles.css
+
+```css
+/* Embedded Trixa portal, enabled only after provider approval. */
+.portal-dialog {
+  width: min(960px, calc(100vw - 28px));
+  max-width: none;
+  height: min(860px, calc(100vh - 28px));
+  height: min(860px, calc(100dvh - 28px));
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #dce2d5;
+  border-radius: 12px;
+  background: var(--cream);
+  color: var(--ink);
+  box-shadow: 0 24px 90px #0d2a3050;
+  overflow: hidden;
+}
+.portal-dialog[open] { display: flex; flex-direction: column; }
+.portal-dialog::backdrop { background: #123e417a; backdrop-filter: blur(5px); }
+.portal-dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line);
+  flex: 0 0 auto;
+}
+.portal-dialog-header h2 { margin: 0; font-size: 20px; line-height: 1.4; letter-spacing: -.4px; }
+.portal-dialog-header p { margin-top: 5px; font-size: 12px; line-height: 1.6; color: #5e7057; }
+.portal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 1px solid #cbd4cb;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+.portal-close:hover { background: #ebeee7; }
+.portal-frame { display: block; width: 100%; flex: 1 1 0; min-height: 0; border: 0; background: #fff; }
+.portal-dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 20px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  line-height: 1.6;
+  color: #5e7057;
+  flex: 0 0 auto;
+}
+.portal-dialog-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 720px) {
+  .portal-dialog { width: calc(100vw - 16px); height: calc(100vh - 16px); height: calc(100dvh - 16px); border-radius: 8px; }
+  .portal-dialog-header { padding: 12px; gap: 10px; }
+  .portal-dialog-header h2 { font-size: 18px; }
+  .portal-dialog-header p { font-size: 11px; }
+  .portal-dialog-footer { padding: 8px 12px; flex-wrap: wrap; gap: 0 12px; }
+}
+```
+
+9.8  KEEP CUSTOMER HELP ACCURATE IN EITHER MODE
+
+In ContactDialog replace its existing portal-help paragraph with:
+
+```jsx
+<p className="portal-help">{EMBED_TRIXA ? 'Complete the Trixa form in the dialog. Close it when you are finished.' : 'Complete the real Trixa form in the secure window, then close it to return here.'}</p>
+```
+
+Replace the existing complete <span className="tracking-powered">...</span> with:
+
+```jsx
+<span className="tracking-powered"><ShieldCheck size={12}/>{EMBED_TRIXA ? 'Trixa tracking · opens on this page' : 'Trixa tracking · opens a secure window'}{!EMBED_TRIXA && <ExternalLink size={10}/>}<span className="sr-only">{EMBED_TRIXA ? '. Close the tracking dialog when finished. An Open separately link is available inside it.' : '. A new tab may open on mobile. Close it to return to Fanaar.'}</span></span>
+```
+
+In the cta-section replace the exact paragraph 'Fill in our Trixa quote form, then close the window to return here.' with:
+
+```jsx
+<p>{EMBED_TRIXA ? 'Fill in our Trixa quote form in the dialog, then close it when you are finished.' : 'Fill in our Trixa quote form, then close the window to return here.'}</p>
+```
+
+Replace the entire const faqs = [...] block with:
+
+```jsx
+const faqs = [
+  ['Where does Fanaar Logistics ship?', 'We transport cargo by sea from Dar es Salaam to Zanzibar, from Zanzibar to Dar es Salaam, and from Zanzibar to Tanga. Choose your route when preparing a quote request.'],
+  ['How do I track my package?', EMBED_TRIXA
+    ? 'Enter your shipment reference or the phone number associated with your shipment in the tracking box. Your Trixa tracking page opens in a dialog here. Close it when finished. Use Open separately if the page does not work in your browser.'
+    : 'Enter your shipment reference or the phone number associated with your shipment in the tracking box. Your tracking information opens in a secure Trixa window, or a new tab on mobile. Close it when you are done to return to Fanaar.'],
+  ['How much will my shipment cost?', EMBED_TRIXA
+    ? 'Your quote depends on the route, cargo type, weight, dimensions, and handling needs. Use Get a quote to fill in the Trixa enquiry form in the dialog. Our team confirms the price before you ship.'
+    : 'Your quote depends on the route, cargo type, weight, dimensions, and handling needs. Use Get a quote to fill in the enquiry form in the Trixa window. Our team confirms the price before you ship.'],
+  ['How do I arrange a shipment?', EMBED_TRIXA
+    ? 'Click Get a quote, enter your cargo details and route in the Trixa dialog, and submit. Wait for Trixa to confirm receipt before closing. Use Open separately if the form does not work in your browser. Our team confirms the price, sailing date, and drop-off instructions.'
+    : 'Click Get a quote to open the real Trixa enquiry form. Enter your cargo details and preferred route, then submit directly to our team through Trixa. Close that window to return here. Our team confirms the price, sailing date, and drop-off instructions.'],
+];
+```
+
+9.9  TEST, ENABLE, AND PUBLISH
+
+Install dependencies if needed with npm ci. Run npm run build. With EMBED_TRIXA = false, npm run dev should preserve the current popup/new-tab behavior. After Trixa approval, change only the flag to true and test from an origin Trixa explicitly allowed. Local preview uses npm run preview after building; if Trixa allows only production, deploy to that allowed origin for the integration check.
+
+Verify: every quote button including the one inside Contact us; quote form field validation; a known tracking reference and phone number; an unknown reference; Close button; Escape when focus is on Fanaar controls; keyboard focus after close; body scroll restoration; narrow mobile layouts; and the Open separately fallback. Escape pressed while focus is inside the cross-origin frame may be handled there, so the visible Close button must remain available. Confirm that Admin login still opens externally. Coordinate one clearly marked test enquiry with Trixa and confirm it arrives in the intended account. A form merely displaying is not proof that its CSRF/session submission works. Do not submit customer data for a connectivity test.
+
+Commit and push source changes to main. Wait for the Build workflow to pass. Once GitHub Pages is enabled for the account/repository and Settings > Pages > Source is GitHub Actions, open Actions > Deploy to GitHub Pages > Run workflow, select main, and run it. Publishing is manual in this export: pushing main runs Build but does not deploy. Wait for the deployment to succeed, then open the published URL and check it. Update README's Trixa section to explain the feature flag, the manual Close control, and the external fallback rather than saying embedding is always blocked. Store this guide outside public assets; no server credentials or tokens belong in it.
+
+If embedding fails later, set EMBED_TRIXA back to false, commit, and push to main. Wait for Build to pass, then run Actions > Deploy to GitHub Pages > Run workflow on main and wait for it to finish. The published site restores popup/new-tab behavior only after that manual deployment succeeds. The same quote links and tracking form provide the fallback without removing the new module. Keep src/portal.js for that fallback.
+
+LIMITS THAT MUST REMAIN CLEAR
+
+The parent cannot inspect Trixa's success screen, fields, branding, or document height because they are cross-origin. Leave the dialog open after a quote is sent until the customer closes it. Do not use iframe onLoad as proof of a successful load or submission: load may fire even when an iframe fails. Do not add a timer to declare a quote submitted. Keep fixed viewport-based iframe sizing and scrolling. Automatic close or dynamic content resizing needs a documented cooperation mechanism from Trixa, such as validated postMessage events. No such event contract was present in the inspected source, so this implementation does not listen for one. If Trixa later supplies it, validate both exact event.origin and event.source === iframeRef.current.contentWindow, plus message type/shape, before acting.
+
+Code check for this guide
+  The proposed source changes were built in an isolated copy with the flag
+  false and true. Both production builds passed. They were not applied to
+  the current website. Build success does not verify Trixa's permissions,
+  cookie behaviour or receipt of a quote; those require live provider tests.
+==========================================================================
+10  TROUBLESHOOTING AND RECOVERY
+==========================================================================
+
+The updated number is not live
+  Confirm the change is in src/config.js on main, the Build check passed,
+  and the correct host was deployed. A successful Build alone does not
+  publish. Refresh the actual live URL. The older preview is a separate
+  deployment and does not follow GitHub automatically.
+
+The top number opens WhatsApp instead of calling
+  Configure CONTACT.phone. A WhatsApp-only configuration intentionally uses
+  the WhatsApp link in the top bar. Check the full international number.
+
+GitHub Pages says upgrade or make the repository public
+  This is the account plan restriction. Keep the repository private. The
+  owner must obtain an eligible plan, or choose another static host later.
+  Changing the domain does not bypass the restriction.
+
+Blank page or missing photos after publishing
+  Check that dist was built for the correct base path. The project subfolder
+  needs /fanaar-logistics/; a domain root needs /. The Pages workflow chooses
+  this automatically after Pages is configured. Check case-sensitive image
+  filenames and paths. Never upload raw src files as the built website.
+
+Trixa opens a tab instead of a small browser window
+  This is expected on mobile or when browser policy blocks a popup. The
+  current fallback still opens the real Trixa page. Browser controls and
+  address bars cannot be hidden reliably by this website.
+
+An embedded popup says refused to connect or is blank
+  Open its separate-page fallback. Ask Trixa to check X-Frame-Options and
+  Content-Security-Policy on the exact response, redirects and result pages.
+  Confirm the allowed origin matches the live domain. Fanaar cannot reliably
+  detect these frame failures using iframe onLoad or onError.
+
+The embedded form displays but does not submit
+  Trixa must inspect sessions, cookies and CSRF errors inside the iframe.
+  Test in the affected mobile browser and with third-party cookies blocked.
+  Continue using the separate-page fallback until submission is verified.
+
+The embedded dialog does not close after sending
+  Manual closing is the default. Fanaar cannot read a cross-origin success
+  screen. Automatic closing or content-based resizing needs a Trixa-supported
+  postMessage contract. If one is added, validate the sender origin, source
+  iframe window and agreed message schema. Do not guess an event name or
+  treat any received message as proof of a successful quote.
+
+Recover a source change
+1. Open the affected file's History in GitHub and identify the last working
+   version. Copy that version's contents back into the current file, or have
+   the maintainer revert the relevant commit through their Git workflow.
+2. Commit the repair to main and wait for Build to pass.
+3. Run the host's deployment again and verify the actual live website.
+4. For the future embedding implementation, switch EMBED_TRIXA back to false
+   and deploy if Trixa stops supporting frames. That restores external links.
+
+Before any release
+  [ ] Check desktop and phone layouts, including the footer Admin login.
+  [ ] Confirm the visible number and tap-to-call destination.
+  [ ] Test WhatsApp if configured.
+  [ ] Check all three routes and customer wording.
+  [ ] Verify a known tracking reference and an unknown reference.
+  [ ] Test quote validation and a clearly labelled test enquiry agreed with
+      the business; verify receipt in the intended Trixa account.
+  [ ] Check keyboard navigation, Escape, dialog close and focus return.
+  [ ] Check the separate-page fallback, mobile scrolling and cookie limits.
+  [ ] Confirm the Build check and actual deployment both succeeded.
+  [ ] Record the live URL and keep the private repository private.
+
+==========================================================================
+11  REFERENCE LINKS
+==========================================================================
+
+Product screens and policies can change. These official references were
+checked for this guide on 18 October 2026. Domain and provider settings should
+be reviewed when you actually make the change.
+
+Fanaar private source
+https://github.com/Abuubakry-Ali/fanaar-logistics
+
+GitHub Pages availability
+https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages
+
+Choose a Pages publishing source
+https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+
+Custom GitHub Pages workflows
+https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
+
+Manage a GitHub Pages custom domain and DNS
+https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site
+
+Verify domain ownership
+https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/verifying-your-custom-domain-for-github-pages
+
+Frame ancestor permissions
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/frame-ancestors
+
+X Frame Options restrictions
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options
+
+Cookie behaviour
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Cookies
+
+Cross-origin messaging
+https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage
+
+End of guide
