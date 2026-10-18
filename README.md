@@ -4,6 +4,10 @@ A responsive React website for sea cargo from Dar es Salaam to Zanzibar, Zanziba
 
 The source repository is private. Website hosting has not been enabled yet. The website needs no application server, database, or API keys; Trixa handles quote submission and shipment tracking on its own website.
 
+## Maintenance guide
+
+Read [the complete website guide](docs/Website-Guide.txt) for the file structure, contact updates, custom domains, publication steps, and the exact future changes for embedded Trixa quotes and tracking. Embedding instructions are for use after provider approval; they have not been applied to the current website.
+
 ## Run locally
 
 Use Node.js 22, then run these commands from this folder:
