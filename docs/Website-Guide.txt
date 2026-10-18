@@ -81,6 +81,7 @@ Repository root
     images/
       cargo-teal.jpg
       zanzibar-dhow.jpg
+      tanzania-service-map.svg
       credits.txt
   src/
     config.js
@@ -103,8 +104,8 @@ src/config.js
 
 src/main.jsx
   Builds the actual page. Brand draws the logo; QuoteLink controls all quote
-  links; ContactDialog shows phone and WhatsApp choices; CoastMap draws the
-  illustrative route map; faqs holds question and answer text; App contains
+  links; ContactDialog shows phone and WhatsApp choices; CoastMap displays
+  the geographic service-map image; faqs holds question and answer text; App contains
   the navigation, hero image, tracking form, route cards, services, about
   section, shipping steps, FAQ, call to action, footer and floating contact
   button. App's handleTracking validates and forwards the reference. The
@@ -138,8 +139,16 @@ public/images/cargo-teal.jpg
 public/images/zanzibar-dhow.jpg
   Photograph in the about section.
 
+public/images/tanzania-service-map.svg
+  Geographic service map derived from Natural Earth public-domain data.
+  Contains a Tanzania overview and an enlarged coastal view, highlighting
+  Dar es Salaam, Tanga, Unguja and Pemba as service locations. Edit map
+  geometry and labels in this asset; CoastMap loads it using BASE_URL so it
+  also works under the GitHub Pages project subfolder.
+
 public/images/credits.txt
-  Photography sources and attribution notes. Update when replacing photos.
+  Photography and map-data sources and attribution notes. Update when
+  replacing photographs or geographic data.
 
 index.html
   The HTML shell. Change the browser title, search-description text and
@@ -237,10 +246,26 @@ Routes
   Zanzibar to Dar es Salaam, and Zanzibar to Tanga.
 
   Route cards are generated from ROUTES. Other route references are written
-  separately in src/main.jsx: the top bar, hero, CoastMap, FAQ and footer.
-  Update these as well if the route network changes. CoastMap is an SVG
-  illustration; changing ROUTES does not redraw it automatically. Also
-  update the description in index.html when necessary.
+  separately in src/main.jsx: the top bar, hero, FAQ and footer. Update these
+  as well if the route network changes. Also update the description in
+  index.html when necessary.
+
+Geographic service map
+  CoastMap in src/main.jsx displays public/images/tanzania-service-map.svg
+  with a BASE_URL image path and descriptive alt text. The SVG uses Natural
+  Earth countries, lakes and populated places data. It contains two views
+  at different scales: Tanzania as a whole and an enlarged coastal area.
+
+  Edit the map asset to change its labels or location markers, using
+  verified geographic positions. Keep the country outline, the island
+  geography, viewBox and the two view scales consistent. Update CoastMap's
+  alt text if the map content changes. Preserve the Natural Earth source
+  information in public/images/credits.txt and README.md.
+
+  Changing ROUTES does not redraw this image. The current map highlights
+  Dar es Salaam, Tanga, Unguja and Pemba as service locations. Pemba's map
+  marker does not add a specific route or claim an office. Keep the three
+  existing route entries unless the business confirms a new route.
 
 Wording and company logo
   Search for the visible wording in src/main.jsx and edit the relevant JSX
