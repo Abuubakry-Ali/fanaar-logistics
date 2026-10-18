@@ -82,12 +82,13 @@ npm run preview
 
 The manual GitHub Pages deployment workflow sets this automatically. When hosting elsewhere, upload the contents of `dist` after building for the correct path.
 
-## Photography and fonts
+## Photography, map and fonts
 
 The photographs are illustrative, not a claim of vessel ownership.
 
 - Cargo vessel: [CHUTTERSNAP / Unsplash](https://unsplash.com/photos/green-cargo-ship-on-body-of-water-5Rlrs3sKVJU).
 - Zanzibar dhow: [Aron Marinelli / Unsplash](https://unsplash.com/photos/a-sailboat-with-people-on-it-in-the-ocean-U8Z9TthY8r4).
+- Geographic service map: [Natural Earth](https://www.naturalearthdata.com/), using public-domain countries, lakes and populated places data. See [data terms](https://www.naturalearthdata.com/about/terms-of-use/) and `public/images/credits.txt`.
 - [Manrope / Google Fonts](https://fonts.google.com/specimen/Manrope), SIL Open Font License.
 
-The route map is schematic and not for navigation. Prices and shipping schedules are confirmed by the business.
+The geographic map includes a Tanzania overview and an enlarged coastal view highlighting Dar es Salaam, Tanga, Unguja and Pemba as service locations. Route availability is listed separately in the three route cards. Map outlines are generalized for display and intended for orientation. Prices and shipping schedules are confirmed by the business.
