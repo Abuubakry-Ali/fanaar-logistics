@@ -33,9 +33,6 @@ GitHub plan does not support Pages from a private repository. For this
 personal account, GitHub Pro would enable that option. Keep repository
 visibility Private. Netlify is an option to consider later, not configured.
 
-Existing preview:
-https://fanaar-logistics.superbarry8.chatgpt.site/
-
 The preview is a separate deployment. Saving a file on GitHub does not update
 that existing preview. A future GitHub Pages site has its own deployment.
 
