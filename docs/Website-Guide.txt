@@ -1,10 +1,10 @@
 FANAAR LOGISTICS WEBSITE MAINTENANCE GUIDE
-Prepared 18 October 2026
+Updated 22 October 2026
 
 This guide explains the current website, where to change its content, how to
 publish updates, how to connect a custom domain, and how to add an in-page
-Trixa popup after Trixa enables embedding. It is written for the website owner
-and the person maintaining the React code. Open this UTF-8 text file in
+service popup after the provider enables embedding. It is written for the
+website owner and the person maintaining the React code. Open this UTF-8 text file in
 Notepad, Visual Studio Code, or Word. Code examples use plain quotation marks.
 
 QUICK FIND
@@ -15,7 +15,7 @@ QUICK FIND
 5  Run and check the website on your computer
 6  Save changes on GitHub and publish an update
 7  Add or change the custom domain
-8  Prepare for Trixa embedding
+8  Prepare for portal embedding
 9  Exact future embedding changes and checks
 10 Troubleshooting and recovery
 11 Reference links
@@ -27,42 +27,55 @@ QUICK FIND
 Public source repository:
 https://github.com/Abuubakry-Ali/fanaar-logistics
 
-The complete React website is stored in this PUBLIC repository. Its Build
-and deployment workflows passed. The website is live on free GitHub Pages
-and was verified in a browser on 18 October 2026. GitHub Free supports Pages
-from public repositories; the earlier private-repository plan restriction
-no longer applies.
+The complete React website is stored in this PUBLIC repository. The website
+uses GitHub Pages with a separate manual deployment. GitHub Free supports
+Pages from public repositories. A successful Build check does not publish.
 
-Live GitHub Pages address, verified:
-https://abuubakry-ali.github.io/fanaar-logistics/
+Current website:
+https://fanaarlogistics.com/
 
-The preview is a separate deployment. Saving a file on GitHub does not update
-that existing preview. The GitHub Pages site has its own manual deployment.
+Use the current deployment or repository Settings > Pages to confirm the
+actual published address and HTTPS status after every release. An older
+preview is separate and does not update when a file is saved on GitHub.
 
-Current Trixa customer tracking page:
-https://cargo.trixa.net/t/5d2e73922193/
+Configured tracking destination:
+https://tracking.fanaarlogistics.com/
 
-Current Trixa quote page:
-https://cargo.trixa.net/t/5d2e73922193/enquiry/
+Configured quote destination:
+https://quote.fanaarlogistics.com/
 
-Staff login destination:
-https://cargo.trixa.net/
+Provider setup and testing are pending. The latest setup check found these
+hostnames pointing to registrar parking; their HTTPS pages returned 404.
+Do not describe them as functioning services until the provider connects the
+correct instances and the full tracking and quote flows pass live testing.
 
-Today, quotes and tracking open Trixa in a separate popup window on desktop
-when the browser permits it. Mobile browsers and blocked popups use a normal
-new tab. Customers close that window or tab to return to Fanaar. Trixa handles
-the actual quote submission and tracking result. Fanaar has no separate
-application server, database, email service or API key.
+Admin shortcut: disabled. Current setting in src/config.js:
+export const ADMIN_LOGIN_URL = '';
 
-Trixa currently blocks embedding. Do not activate the future iframe changes
-until the provider permits your actual website origin and the live quote form
-has been tested inside the frame. The supplied portal displays Ruvuma Branch;
-its account branding and records are managed in Trixa.
+A possible future example is https://admin.fanaarlogistics.com/ only.
+No admin destination has been confirmed. Restore the shortcut only by setting
+ADMIN_LOGIN_URL to the exact HTTPS login URL supplied and confirmed by the
+provider. The footer link stays hidden while this value is empty.
 
-The GitHub source repository is public. The public website also sends its
-built HTML, JavaScript, CSS and images to visitors' browsers. Do not put
-passwords, private keys or admin credentials in frontend files. The footer
-shortcut goes to Trixa's own login.
+Quotes and tracking use a separate popup window on desktop when the browser
+permits it. Mobile browsers and blocked popups use a normal new tab.
+Customers close that window or tab to return to Fanaar. The service provider
+will handle quote submission, tracking results and account records once the
+new portals are connected and verified. Fanaar has
+no separate application server, database, email service or API key.
+
+A custom domain alone does not grant iframe permission. Keep the future
+embedding changes disabled until the provider permits the actual website
+origin and the full quote-submission flow has been tested inside the frame.
+Do not infer the new portals' frame policy from any previous service URL.
+
+Current business contact:
+Phone: +255 650 090 876
+WhatsApp: 255650090876
+
+The repository and built frontend are public. Do not put passwords, private
+keys or admin credentials in frontend files or this guide. A staff login
+shortcut, if enabled after confirmation, is not an access-control mechanism.
 
 ==========================================================================
 2  WEBSITE STRUCTURE AND EVERY PROJECT FILE
@@ -94,7 +107,6 @@ Repository root
   index.html
   package.json
   package-lock.json
-  README.md
   vite.config.js
 
 src/config.js
@@ -112,10 +124,10 @@ src/main.jsx
   createRoot call at the bottom starts the React application.
 
 src/portal.js
-  openPortalPopup opens the real Trixa page in a separate browser window.
+  openPortalPopup opens the service page in a separate browser window.
   It returns false on small screens or if popup creation fails so the normal
   link or form can open a tab. This is the current external-window behaviour;
-  it does not embed Trixa or read its content.
+  it does not embed the service or read its content.
 
 src/styles.css
   All styling, colours, layout, phone layouts, dialog appearance and screen
@@ -171,7 +183,7 @@ vite.config.js
 .github/workflows/build.yml
   Automatically installs dependencies and builds after pushes to main. It
   can also run manually. A successful check means the code builds; it does
-  not mean the website has been published or that Trixa submissions work.
+  not mean the website has been published or that quote submissions work.
 
 .github/workflows/deploy-pages.yml
   Manual GitHub Pages deployment. It gets the Pages base path, installs,
@@ -183,9 +195,6 @@ vite.config.js
   Excludes node_modules, dist and local environment files from Git. Do not
   upload installed dependencies or local credentials.
 
-README.md
-  Short setup and maintenance notes in the repository home page. This guide
-  gives more detailed procedures.
 
 docs/Website-Guide.txt
   The owner and developer handover instructions. It is outside public, so
@@ -202,38 +211,28 @@ Generated folders on your computer
 
 1. Sign in to GitHub and open the Fanaar repository.
 2. Open src, then config.js. Use the pencil or Edit this file action.
-3. Find this block:
+3. The current business settings are:
 
    export const CONTACT = {
-     phone: '',
-     whatsapp: '',
+     phone: '+255 650 090 876',
+     whatsapp: '255650090876',
    };
 
-4. Put your real business number between the single quotes. This is an
-   EXAMPLE ONLY, not Fanaar's actual number:
-
-   export const CONTACT = {
-     phone: '+255700000000',
-     whatsapp: '255700000000',
-   };
-
-   For a Tanzanian number, use country code 255 and omit the local leading
-   zero. Phone can include the +. WhatsApp should contain international
-   digits only, with no +, spaces or punctuation. Use your complete real
-   number. The two numbers can be the same or different.
-
-5. Leave whatsapp as '' if you only want calls. Leave phone as '' if calls
-   are unavailable. Do not leave a sample number in a published site.
-6. Commit with a clear message such as "Update business contact number".
-7. Wait for the Build check to pass, then publish using section 6.
-8. Check on a phone: the number should be visible in the top bar immediately.
-   Tap the phone link and confirm the device offers a call to the right
-   number. The visitor's device controls whether a call is placed. Desktop
-   computers may require a calling application.
-9. Open Contact us and check the call link and WhatsApp destination too.
+4. Change those values only when the business confirms a new number. For a
+   Tanzanian number use country code 255 and omit the local leading zero.
+   Phone may include a + and display spaces. WhatsApp must contain digits
+   only, with no +, spaces or punctuation. The numbers may be the same or
+   different. Leave a setting as '' only if that contact method is unavailable.
+5. Commit the change, wait for Build to pass, then publish using section 6.
+6. Inspect the live top-bar, contact-dialog and lower call-link destinations.
+   The current phone links must point to tel:+255650090876 and WhatsApp to
+   https://wa.me/255650090876. Hover, copy the link address or inspect href;
+   no call or message needs to be placed for this check.
+7. Check both desktop and mobile layouts. Every displayed phone-number link
+   should offer the phone destination. Desktop devices may need a calling app.
 
 If only WhatsApp is configured, the top bar uses that number as a WhatsApp
-link. If you want the top number to make a phone call, configure phone.
+link. Configure phone when the top number should offer a phone call.
 Until a number is configured, the site displays "Number coming soon".
 
 ==========================================================================
@@ -260,7 +259,7 @@ Geographic service map
   verified geographic positions. Keep the country outline, the island
   geography, viewBox and the two view scales consistent. Update CoastMap's
   alt text if the map content changes. Preserve the Natural Earth source
-  information in public/images/credits.txt and README.md.
+  information in public/images/credits.txt.
 
   Changing ROUTES does not redraw this image. The current map highlights
   Dar es Salaam, Tanga, Unguja and Pemba as service locations. Pemba's map
@@ -277,7 +276,7 @@ Photos
   For the simplest replacement, use the same filenames in public/images.
   Keep the files reasonably small. If the subject changes, update alt text
   in src/main.jsx. To use a different filename, update the matching image
-  path in src/main.jsx too. Update public/images/credits.txt and README.md
+  path in src/main.jsx too. Update public/images/credits.txt
   for the new source and keep any required licence information.
 
 Colours and spacing
@@ -291,16 +290,27 @@ Browser tab and search description
   choose when to refresh their listing; a deployment does not force an
   immediate search result change.
 
-Trixa account links
-  Change TRACKING_URL or QUOTE_URL in src/config.js only when Trixa supplies
-  the correct replacement. Test with the intended branch/account. Do not
-  guess a tracking API or quote submission endpoint.
+Service account links
+  Configured TRACKING_URL is https://tracking.fanaarlogistics.com/ and
+  QUOTE_URL is https://quote.fanaarlogistics.com/. Provider setup and live
+  integration testing are still pending. Change the constants in
+  src/config.js only for confirmed replacement pages. Test the correct
+  account and exact path. The tracking box sends GET with ref, containing a
+  reference or phone number. The provider must support that contract; if it
+  changes, update handleTracking and the native form together.
+
+  A URL edit does not change visible wording in src/main.jsx, the external
+  popup behavior in src/portal.js, or the provider's embedding permission.
+  Review wording and titles in main.jsx separately when rebranding.
 
 Admin login
-  Change ADMIN_LOGIN_URL in src/config.js. The discreet footer link opens
-  that address in a new tab. Its wording and placement are in the footer
-  inside src/main.jsx. It is a shortcut, not an access-control mechanism;
-  Trixa still authenticates staff. Keep staff credentials out of this repo.
+  The shortcut is disabled: ADMIN_LOGIN_URL = '' in src/config.js. The footer
+  renders its login link only when this setting has a nonempty value.
+  https://admin.fanaarlogistics.com/ is a proposed example, not a confirmed
+  destination. To restore the shortcut, obtain the exact working HTTPS login
+  URL from the provider, set ADMIN_LOGIN_URL, test it, and publish using
+  section 6. The footer markup remains in main.jsx. Keep staff authentication
+  external and never put credentials in frontend files or this repository.
 
 ==========================================================================
 5  RUN AND CHECK THE WEBSITE ON YOUR COMPUTER
@@ -366,12 +376,13 @@ Publish on GitHub Pages
 3. Wait for both the build and deploy jobs to succeed.
 4. Open the website URL from the deployment or Settings > Pages. Use that
    actual URL rather than assuming a project address.
-5. Check the live number, image loading, tracking, quote link and admin link.
+5. Check the live number, images, tracking and quote destinations. Confirm
+   that Admin login is hidden while ADMIN_LOGIN_URL is empty.
 
 Repeat the manual deployment after future source changes. The separate
-Build workflow never publishes by itself. The current live website is
-https://abuubakry-ali.github.io/fanaar-logistics/ . After each deployment,
-check that address to confirm the update is visible.
+Build workflow never publishes by itself. The current website is
+https://fanaarlogistics.com/. After each deployment, use the actual address
+shown by the deployment or Pages settings to confirm the update is visible.
 
 Optional later hosting elsewhere
   This is a static Vite site. A static host generally runs npm run build
@@ -383,8 +394,10 @@ Optional later hosting elsewhere
 7  ADD OR CHANGE THE CUSTOM DOMAIN
 ==========================================================================
 
-The website is already hosted on GitHub Pages. Use this procedure to add a
-custom domain. Replace example.com with a domain you own; it is only an example.
+The website uses GitHub Pages with https://fanaarlogistics.com/ as its current
+custom domain. Use this procedure only when changing that website domain.
+Replacing tracking or quote links does not require changing Pages or its DNS.
+The example.com values below are examples for a future domain you own.
 
 1. In personal GitHub Settings > Pages, add and verify your domain using the
    exact TXT record GitHub supplies. Keep that TXT record.
@@ -404,7 +417,7 @@ custom domain. Replace example.com with a domain you own; it is only an example.
 4. Wait for GitHub's DNS check and HTTPS certificate; then enable Enforce
    HTTPS. DNS and certificate changes may take up to 24 hours.
 5. Run Deploy to GitHub Pages again so Vite uses the domain's root path.
-6. Test the root and www addresses, photos, phone and Trixa links.
+6. Test the root and www addresses, photos, phone and service links.
 
 With this Actions workflow, no CNAME source file is required. Review current
 GitHub DNS documentation before applying these recorded values. If changing
@@ -412,53 +425,54 @@ an existing domain, verify the new domain first, replace the Pages setting
 and DNS records, and remove obsolete website DNS records when finished.
 
 The custom domain changes the address visitors see. It does not change
-repository visibility or the hosting plan. If Trixa embedding is enabled,
-ask Trixa to allow the new origin too, then retest the embedded form.
+repository visibility or the hosting plan. If portal embedding is enabled,
+ask the provider to allow the new origin too, then retest the embedded form.
 
 ==========================================================================
-8  PREPARE FOR TRIXA EMBEDDING
+8  PREPARE FOR PORTAL EMBEDDING
 ==========================================================================
 
 What embedding means
-  A real Trixa page appears in an iframe inside a dialog over Fanaar. The
-  customer can still see Fanaar behind it. They fill and submit Trixa's form
+  A real service page appears in an iframe inside a dialog over Fanaar. The
+  customer can still see Fanaar behind it. They fill and submit the provider's form
   inside that frame, or view tracking results there. This needs no separate
-  Fanaar server. It is different from recreating Trixa's form in React.
+  Fanaar server. It is different from recreating the provider's form in React.
 
 Provider prerequisites
-1. Give Trixa the exact website origin to allow. An origin is scheme and
-   hostname, plus a port when used. For a GitHub project URL, use
-   https://abuubakry-ali.github.io, without /fanaar-logistics/.
-   For your own domain, supply https://example.com and https://www.example.com
-   only if both are actually used. Do not send the example domain as yours.
-2. Ask them to allow both the tracking and enquiry pages listed in section 1,
-   including redirects and the pages reached after submission.
-3. They must adjust their HTTP response headers. A policy example, using an
-   example domain only, is:
+1. Give the provider the actual website origin: https://fanaarlogistics.com.
+   An origin is scheme and hostname, plus a port when used; it has no path.
+   Include https://www.fanaarlogistics.com only if that is also an active
+   website origin. Include local preview origins only if explicitly allowed.
+2. Ask them to allow both https://tracking.fanaarlogistics.com/ and
+   https://quote.fanaarlogistics.com/ to appear in a frame, including any
+   redirects and result pages. A custom hostname does not grant permission.
+3. They must configure their HTTP response headers. For the current website,
+   an example allowance is:
 
-   Content-Security-Policy: frame-ancestors 'self' https://example.com;
+   Content-Security-Policy: frame-ancestors 'self' https://fanaarlogistics.com;
 
-   Trixa should merge the allowed origins into its existing policy and remove
-   conflicting X-Frame-Options restrictions for these pages. A Fanaar HTML
-   meta tag cannot change the provider's framing policy. ALLOW-FROM is not a
-   current replacement for a proper frame-ancestors policy.
-4. Ask Trixa to test cross-site sessions, CSRF protection and successful
-   enquiry submission inside the iframe. Allowing display alone does not
-   guarantee form submission. Cookie rules, including browser restrictions
-   on third-party cookies, can still block sessions. SameSite=None; Secure
-   may be part of their solution but is not sufficient in every browser.
-   Do not disable CSRF protection to make an iframe work.
-5. Obtain their recommended iframe configuration and confirm the account
-   receiving quotes. Keep a separate-page fallback available.
+   The provider should merge approved origins into its existing policy and
+   remove conflicting X-Frame-Options restrictions on these public pages.
+   A Fanaar HTML meta tag cannot change the provider's framing policy.
+   ALLOW-FROM is not a current replacement for frame-ancestors.
+4. Ask the provider to test cookies, sessions, CSRF protection and successful
+   enquiry submission inside the frame. The branded subdomains are still
+   different origins from the main website. They may be same-site when they
+   stay under the same HTTPS parent domain, but cross-site redirects and
+   browser cookie restrictions can still affect the flow. The provider must
+   choose a supported design and retain CSRF protection. Display alone is
+   not proof of successful submission. Do not disable security to make it work.
+5. Obtain the recommended iframe configuration and confirm the account that
+   receives quotes. Keep a separate-page fallback available.
 
-You do not need CORS permission merely to display a Trixa iframe. Browser
-fetch/API integration is a different approach and requires a provider-
-supported API and appropriate access. This guide uses the existing pages.
+CORS permission is not needed merely to display a provider page in an iframe.
+Browser fetch/API integration is a different approach and requires a supported
+API and appropriate access. This guide's future example embeds the pages.
 
-If Fanaar's host later adds its own Content-Security-Policy, its frame-src
-must also allow https://cargo.trixa.net. Test the published Fanaar page
-directly. A preview inside someone else's iframe adds extra ancestors that
-Trixa may not permit.
+If Fanaar's host adds its own Content-Security-Policy, its frame-src must allow
+https://tracking.fanaarlogistics.com and https://quote.fanaarlogistics.com.
+Test the published Fanaar page directly. Preview tools may add extra frame
+ancestors that the provider has not approved.
 
 The future changes in section 9 are not active in the current website.
 
@@ -476,12 +490,12 @@ do not copy those lines or the js, jsx or css language labels into the file.
 
 9.1  ADD ONE CONFIGURATION FLAG
 
-In src/config.js add the following after ADMIN_LOGIN_URL. Keep all existing exports and business contact settings:
+In src/config.js add the following after QUOTE_URL. Keep confirmed service exports and business contact settings. Do not activate the proposed admin URL as part of this change:
 
 ```js
-// Set true only after Trixa allows this website to embed BOTH public pages.
+// Set true only after the provider allows this website to embed BOTH public pages.
 // Set false and republish at any time to restore popup/new-tab mode.
-export const EMBED_TRIXA = false;
+export const EMBED_PORTALS = false;
 ```
 
 9.2  CREATE src/PortalDialog.jsx WITH THIS COMPLETE CONTENT
@@ -489,7 +503,7 @@ export const EMBED_TRIXA = false;
 ```jsx
 import React, { createContext, useCallback, useContext, useEffect, useId, useRef, useState } from 'react';
 import { ExternalLink, X } from 'lucide-react';
-import { EMBED_TRIXA } from './config';
+import { EMBED_PORTALS } from './config';
 
 const PortalContext = createContext(null);
 
@@ -531,7 +545,7 @@ function PortalDialog({ portal, onClose }) {
       <header className="portal-dialog-header">
         <div>
           <h2 id={headingId}>{portal.title}</h2>
-          <p id={helpId}>Complete the Trixa page below. Use Close when you are finished.</p>
+          <p id={helpId}>Complete the service page below. Use Close when you are finished.</p>
         </div>
         <button type="button" className="portal-close" onClick={onClose} autoFocus>
           <X size={18} aria-hidden="true" /> Close
@@ -541,7 +555,7 @@ function PortalDialog({ portal, onClose }) {
         key={portal.url}
         className="portal-frame"
         src={portal.url}
-        title={`${portal.title} — Trixa`}
+        title={`${portal.title} — Fanaar Logistics`}
       />
       <footer className="portal-dialog-footer">
         <span>If the page does not display or submit, open it separately.</span>
@@ -558,7 +572,7 @@ export function PortalProvider({ children }) {
   const closePortal = useCallback(() => setPortal(null), []);
 
   const openPortal = useCallback((url, title) => {
-    if (!EMBED_TRIXA || typeof window.HTMLDialogElement?.prototype?.showModal !== 'function') {
+    if (!EMBED_PORTALS || typeof window.HTMLDialogElement?.prototype?.showModal !== 'function') {
       return false;
     }
     setPortal({ url, title });
@@ -574,14 +588,14 @@ export function PortalProvider({ children }) {
 }
 ```
 
-This deliberately keeps portal state separate from ContactDialog's modal state. A quote opened from the contact dialog closes the contact dialog and opens the portal without its contact-close callback cancelling the portal. The iframe loads only URLs supplied by the code below. No success-message listener is fabricated. The iframe has no sandbox or credentialless attribute: adding restrictions without Trixa's guidance can break its JavaScript, form submission, cookies, or downloads.
+This deliberately keeps portal state separate from ContactDialog's modal state. A quote opened from the contact dialog closes the contact dialog and opens the portal without its contact-close callback cancelling the portal. The iframe loads only URLs supplied by the code below. No success-message listener is fabricated. The iframe has no sandbox or credentialless attribute: adding restrictions without the provider's guidance can break its JavaScript, form submission, cookies, or downloads.
 
 9.3  UPDATE src/main.jsx — IMPORTS
 
-Replace the existing config import with:
+Replace the existing config import with the following. ADMIN_LOGIN_URL remains an export even while empty; leave it empty until a real admin destination is confirmed:
 
 ```jsx
-import { CONTACT, ROUTES, TRACKING_URL, QUOTE_URL, ADMIN_LOGIN_URL, EMBED_TRIXA, whatsappNumber } from './config';
+import { CONTACT, ROUTES, TRACKING_URL, QUOTE_URL, ADMIN_LOGIN_URL, EMBED_PORTALS, whatsappNumber } from './config';
 ```
 
 Keep the existing import of openPortalPopup from './portal'. Add this import after it:
@@ -612,7 +626,7 @@ function QuoteLink({ children, className = '', onNavigate, ...props }) {
       target="_blank"
       rel="noopener noreferrer"
       className={className}
-      title={EMBED_TRIXA ? 'Opens the Trixa quote form on this page' : 'Opens the Trixa quote form in a separate window'}
+      title={EMBED_PORTALS ? 'Opens the quote form on this page' : 'Opens the quote form in a separate window'}
       onClick={openQuote}
       {...props}
     >
@@ -652,7 +666,7 @@ function handleTracking(event) {
 }
 ```
 
-Keep the tracking form's action, method="get", target="_blank", rel, input name="ref", and onChange logic as they are. They preserve the native form fallback. URLSearchParams encodes phone numbers, spaces, + signs, and references correctly. Do not add quote-form query prefilling: the inspected enquiry page ignores name, phone, cargo, route, and message query parameters.
+Keep the tracking form's action, method="get", target="_blank", rel, input name="ref", and onChange logic as they are. They preserve the native form fallback. URLSearchParams encodes phone numbers, spaces, + signs, and references correctly. Do not add quote-form query prefilling unless the provider documents and verifies it for the new portal. Support for such parameters has not been confirmed.
 
 9.6  UPDATE src/main.jsx — ROOT WRAPPER
 
@@ -672,12 +686,12 @@ createRoot(document.getElementById('root')).render(
 );
 ```
 
-Leave App's existing ContactDialog rendering and its state unchanged. Leave the Admin login anchor unchanged; staff login should continue opening the normal external Trixa page.
+Leave App's existing ContactDialog rendering and its state unchanged. Keep the footer's conditional admin rendering and ADMIN_LOGIN_URL = '' unchanged. Any later confirmed Admin login shortcut should remain external; do not embed staff authentication.
 
 9.7  APPEND THIS COMPLETE CSS TO THE END OF src/styles.css
 
 ```css
-/* Embedded Trixa portal, enabled only after provider approval. */
+/* Embedded service portal, enabled only after provider approval. */
 .portal-dialog {
   width: min(960px, calc(100vw - 28px));
   max-width: none;
@@ -755,22 +769,22 @@ Leave App's existing ContactDialog rendering and its state unchanged. Leave the 
 
 9.8  KEEP CUSTOMER HELP ACCURATE IN EITHER MODE
 
-In ContactDialog replace its existing portal-help paragraph with:
+In ContactDialog replace its existing portal-help paragraph (currently "Complete our quote form in the secure window, then close it to return here.") with:
 
 ```jsx
-<p className="portal-help">{EMBED_TRIXA ? 'Complete the Trixa form in the dialog. Close it when you are finished.' : 'Complete the real Trixa form in the secure window, then close it to return here.'}</p>
+<p className="portal-help">{EMBED_PORTALS ? 'Complete our quote form in the dialog. Close it when you are finished.' : 'Complete our quote form in the secure window, then close it to return here.'}</p>
 ```
 
 Replace the existing complete <span className="tracking-powered">...</span> with:
 
 ```jsx
-<span className="tracking-powered"><ShieldCheck size={12}/>{EMBED_TRIXA ? 'Trixa tracking · opens on this page' : 'Trixa tracking · opens a secure window'}{!EMBED_TRIXA && <ExternalLink size={10}/>}<span className="sr-only">{EMBED_TRIXA ? '. Close the tracking dialog when finished. An Open separately link is available inside it.' : '. A new tab may open on mobile. Close it to return to Fanaar.'}</span></span>
+<span className="tracking-powered"><ShieldCheck size={12}/>{EMBED_PORTALS ? 'Shipment tracking · opens on this page' : 'Shipment tracking · opens a secure window'}{!EMBED_PORTALS && <ExternalLink size={10}/>}<span className="sr-only">{EMBED_PORTALS ? '. Close the tracking dialog when finished. An Open separately link is available inside it.' : '. A new tab may open on mobile. Close it to return to Fanaar.'}</span></span>
 ```
 
-In the cta-section replace the exact paragraph 'Fill in our Trixa quote form, then close the window to return here.' with:
+In the cta-section replace the exact paragraph 'Fill in our quote form, then close the window to return here.' with:
 
 ```jsx
-<p>{EMBED_TRIXA ? 'Fill in our Trixa quote form in the dialog, then close it when you are finished.' : 'Fill in our Trixa quote form, then close the window to return here.'}</p>
+<p>{EMBED_PORTALS ? 'Fill in our quote form in the dialog, then close it when you are finished.' : 'Fill in our quote form, then close the window to return here.'}</p>
 ```
 
 Replace the entire const faqs = [...] block with:
@@ -778,40 +792,47 @@ Replace the entire const faqs = [...] block with:
 ```jsx
 const faqs = [
   ['Where does Fanaar Logistics ship?', 'We transport cargo by sea from Dar es Salaam to Zanzibar, from Zanzibar to Dar es Salaam, and from Zanzibar to Tanga. Choose your route when preparing a quote request.'],
-  ['How do I track my package?', EMBED_TRIXA
-    ? 'Enter your shipment reference or the phone number associated with your shipment in the tracking box. Your Trixa tracking page opens in a dialog here. Close it when finished. Use Open separately if the page does not work in your browser.'
-    : 'Enter your shipment reference or the phone number associated with your shipment in the tracking box. Your tracking information opens in a secure Trixa window, or a new tab on mobile. Close it when you are done to return to Fanaar.'],
-  ['How much will my shipment cost?', EMBED_TRIXA
-    ? 'Your quote depends on the route, cargo type, weight, dimensions, and handling needs. Use Get a quote to fill in the Trixa enquiry form in the dialog. Our team confirms the price before you ship.'
-    : 'Your quote depends on the route, cargo type, weight, dimensions, and handling needs. Use Get a quote to fill in the enquiry form in the Trixa window. Our team confirms the price before you ship.'],
-  ['How do I arrange a shipment?', EMBED_TRIXA
-    ? 'Click Get a quote, enter your cargo details and route in the Trixa dialog, and submit. Wait for Trixa to confirm receipt before closing. Use Open separately if the form does not work in your browser. Our team confirms the price, sailing date, and drop-off instructions.'
-    : 'Click Get a quote to open the real Trixa enquiry form. Enter your cargo details and preferred route, then submit directly to our team through Trixa. Close that window to return here. Our team confirms the price, sailing date, and drop-off instructions.'],
+  ['How do I track my package?', EMBED_PORTALS
+    ? 'Enter your shipment reference or the phone number associated with your shipment in the tracking box. Your tracking page opens in a dialog here. Close it when finished. Use Open separately if the page does not work in your browser.'
+    : 'Enter your shipment reference or the phone number associated with your shipment in the tracking box. Your tracking information opens in a secure service window, or a new tab on mobile. Close it when you are done to return to Fanaar.'],
+  ['How much will my shipment cost?', EMBED_PORTALS
+    ? 'Your quote depends on the route, cargo type, weight, dimensions, and handling needs. Use Get a quote to fill in the quote form in the dialog. Our team confirms the price before you ship.'
+    : 'Your quote depends on the route, cargo type, weight, dimensions, and handling needs. Use Get a quote to fill in the enquiry form in the service window. Our team confirms the price before you ship.'],
+  ['How do I arrange a shipment?', EMBED_PORTALS
+    ? 'Click Get a quote, enter your cargo details and route in the quote dialog, and submit. Wait for the provider to confirm receipt before closing. Use Open separately if the form does not work in your browser. Our team confirms the price, sailing date, and drop-off instructions.'
+    : 'Click Get a quote to open the real quote form. Enter your cargo details and preferred route, then submit directly to our team through the provider. Close that window to return here. Our team confirms the price, sailing date, and drop-off instructions.'],
 ];
 ```
 
 9.9  TEST, ENABLE, AND PUBLISH
 
-Install dependencies if needed with npm ci. Run npm run build. With EMBED_TRIXA = false, npm run dev should preserve the current popup/new-tab behavior. After Trixa approval, change only the flag to true and test from an origin Trixa explicitly allowed. Local preview uses npm run preview after building; if Trixa allows only production, deploy to that allowed origin for the integration check.
+Install dependencies if needed with npm ci. Run npm run build. With EMBED_PORTALS = false, npm run dev should preserve the current popup/new-tab behavior. After provider approval, change only the flag to true and test from an origin the provider explicitly allowed. Local preview uses npm run preview after building; if the provider allows only production, deploy to that allowed origin for the integration check.
 
-Verify: every quote button including the one inside Contact us; quote form field validation; a known tracking reference and phone number; an unknown reference; Close button; Escape when focus is on Fanaar controls; keyboard focus after close; body scroll restoration; narrow mobile layouts; and the Open separately fallback. Escape pressed while focus is inside the cross-origin frame may be handled there, so the visible Close button must remain available. Confirm that Admin login still opens externally. Coordinate one clearly marked test enquiry with Trixa and confirm it arrives in the intended account. A form merely displaying is not proof that its CSRF/session submission works. Do not submit customer data for a connectivity test.
+Verify: every quote button including the one inside Contact us; quote form field validation; a known tracking reference and phone number; an unknown reference; Close button; Escape when focus is on Fanaar controls; keyboard focus after close; body scroll restoration; narrow mobile layouts; and the Open separately fallback. Escape pressed while focus is inside the cross-origin frame may be handled there, so the visible Close button must remain available. Confirm Admin login is hidden while its setting is empty; test a confirmed external login only if it is enabled later. Coordinate one clearly marked test enquiry with the provider and confirm it arrives in the intended account. A form merely displaying is not proof that its CSRF/session submission works. Do not submit customer data for a connectivity test.
 
-Commit and push source changes to main. Wait for the Build workflow to pass. GitHub Pages is enabled with GitHub Actions as its source. Open Actions > Deploy to GitHub Pages > Run workflow, select main, and run it. Publishing is manual in this export: pushing main runs Build but does not deploy. Wait for the deployment to succeed, then open the published URL and check it. Update README's Trixa section to explain the feature flag, the manual Close control, and the external fallback rather than saying embedding is always blocked. Store this guide outside public assets; no server credentials or tokens belong in it.
+Commit and push source changes to main. Wait for the Build workflow to pass. GitHub Pages is enabled with GitHub Actions as its source. Open Actions > Deploy to GitHub Pages > Run workflow, select main, and run it. Publishing is manual in this export: pushing main runs Build but does not deploy. Wait for the deployment to succeed, then open the published URL and check it. Update this guide's current-status section to describe the activated feature flag, manual Close control, and external fallback. Store this guide outside public assets; no server credentials or tokens belong in it.
 
-If embedding fails later, set EMBED_TRIXA back to false, commit, and push to main. Wait for Build to pass, then run Actions > Deploy to GitHub Pages > Run workflow on main and wait for it to finish. The published site restores popup/new-tab behavior only after that manual deployment succeeds. The same quote links and tracking form provide the fallback without removing the new module. Keep src/portal.js for that fallback.
+If embedding fails later, set EMBED_PORTALS back to false, commit, and push to main. Wait for Build to pass, then run Actions > Deploy to GitHub Pages > Run workflow on main and wait for it to finish. The published site restores popup/new-tab behavior only after that manual deployment succeeds. The same quote links and tracking form provide the fallback without removing the new module. Keep src/portal.js for that fallback.
 
 LIMITS THAT MUST REMAIN CLEAR
 
-The parent cannot inspect Trixa's success screen, fields, branding, or document height because they are cross-origin. Leave the dialog open after a quote is sent until the customer closes it. Do not use iframe onLoad as proof of a successful load or submission: load may fire even when an iframe fails. Do not add a timer to declare a quote submitted. Keep fixed viewport-based iframe sizing and scrolling. Automatic close or dynamic content resizing needs a documented cooperation mechanism from Trixa, such as validated postMessage events. No such event contract was present in the inspected source, so this implementation does not listen for one. If Trixa later supplies it, validate both exact event.origin and event.source === iframeRef.current.contentWindow, plus message type/shape, before acting.
+The parent cannot inspect the provider's success screen, fields, branding, or document height because they are cross-origin. Leave the dialog open after a quote is sent until the customer closes it. Do not use iframe onLoad as proof of a successful load or submission: load may fire even when an iframe fails. Do not add a timer to declare a quote submitted. Keep fixed viewport-based iframe sizing and scrolling. Automatic close or dynamic content resizing needs a documented cooperation mechanism from the provider, such as validated postMessage events. No provider event contract has been confirmed for the new portals, so this implementation does not listen for one. If the provider later supplies it, validate both exact event.origin and event.source === iframeRef.current.contentWindow, plus message type/shape, before acting.
 
 Code check for this guide
-  The proposed source changes were built in an isolated copy with the flag
-  false and true. Both production builds passed. They were not applied to
-  the current website. Build success does not verify Trixa's permissions,
-  cookie behaviour or receipt of a quote; those require live provider tests.
+  An earlier version of these proposed changes built in an isolated copy
+  with the flag false and true. This generic example must be rechecked against
+  the current source before use, including the conditional admin link and current customer wording. It is
+  not active. Build success does not verify provider permissions, cookies or
+  receipt of a quote; those require live provider tests.
 ==========================================================================
 10  TROUBLESHOOTING AND RECOVERY
 ==========================================================================
+
+A configured service hostname shows a parking page or 404
+  The provider must connect the tracking and quote instances, confirm DNS,
+  exact paths and HTTPS, then verify the correct account and complete flows.
+  Replacing a URL in config.js cannot provision the external application.
+  Keep this status distinct from whether the Fanaar website itself deployed.
 
 The updated number is not live
   Confirm the change is in src/config.js on main, the Build check passed,
@@ -835,25 +856,25 @@ Blank page or missing photos after publishing
   this automatically after Pages is configured. Check case-sensitive image
   filenames and paths. Never upload raw src files as the built website.
 
-Trixa opens a tab instead of a small browser window
+The service opens a tab instead of a small browser window
   This is expected on mobile or when browser policy blocks a popup. The
-  current fallback still opens the real Trixa page. Browser controls and
+  current fallback still opens the service page. Browser controls and
   address bars cannot be hidden reliably by this website.
 
 An embedded popup says refused to connect or is blank
-  Open its separate-page fallback. Ask Trixa to check X-Frame-Options and
+  Open its separate-page fallback. Ask the provider to check X-Frame-Options and
   Content-Security-Policy on the exact response, redirects and result pages.
   Confirm the allowed origin matches the live domain. Fanaar cannot reliably
   detect these frame failures using iframe onLoad or onError.
 
 The embedded form displays but does not submit
-  Trixa must inspect sessions, cookies and CSRF errors inside the iframe.
+  The provider must inspect sessions, cookies and CSRF errors inside the iframe.
   Test in the affected mobile browser and with third-party cookies blocked.
   Continue using the separate-page fallback until submission is verified.
 
 The embedded dialog does not close after sending
   Manual closing is the default. Fanaar cannot read a cross-origin success
-  screen. Automatic closing or content-based resizing needs a Trixa-supported
+  screen. Automatic closing or content-based resizing needs a provider-supported
   postMessage contract. If one is added, validate the sender origin, source
   iframe window and agreed message schema. Do not guess an event name or
   treat any received message as proof of a successful quote.
@@ -864,17 +885,18 @@ Recover a source change
    the maintainer revert the relevant commit through their Git workflow.
 2. Commit the repair to main and wait for Build to pass.
 3. Run the host's deployment again and verify the actual live website.
-4. For the future embedding implementation, switch EMBED_TRIXA back to false
-   and deploy if Trixa stops supporting frames. That restores external links.
+4. For the future embedding implementation, switch EMBED_PORTALS back to false
+   and deploy if the provider stops supporting frames. That restores external links.
 
 Before any release
-  [ ] Check desktop and phone layouts, including the footer Admin login.
+  [ ] Check desktop and phone layouts; Admin login must stay hidden while
+      ADMIN_LOGIN_URL is empty.
   [ ] Confirm the visible number and tap-to-call destination.
   [ ] Test WhatsApp if configured.
   [ ] Check all three routes and customer wording.
   [ ] Verify a known tracking reference and an unknown reference.
   [ ] Test quote validation and a clearly labelled test enquiry agreed with
-      the business; verify receipt in the intended Trixa account.
+      the business; verify receipt in the intended provider account.
   [ ] Check keyboard navigation, Escape, dialog close and focus return.
   [ ] Check the separate-page fallback, mobile scrolling and cookie limits.
   [ ] Confirm the Build check and actual deployment both succeeded.
@@ -885,7 +907,8 @@ Before any release
 ==========================================================================
 
 Product screens and policies can change. These official references were
-checked for this guide on 18 October 2026. Domain and provider settings should
+checked for the original guide on 18 October 2026; this documentation update
+does not repeat those external checks. Domain and provider settings should
 be reviewed when you actually make the change.
 
 Fanaar public source
