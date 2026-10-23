@@ -6,10 +6,11 @@ export const CONTACT = {
   whatsapp: '255650090876',
 };
 
-export const TRACKING_URL = 'https://tracking.fanaarlogistics.com/';
-export const QUOTE_URL = 'https://quote.fanaarlogistics.com/';
-// Add the confirmed staff portal address to show the footer's Admin login link.
-export const ADMIN_LOGIN_URL = '';
+// Configure the staff portal only after its protected deployment is ready.
+export const ADMIN_LOGIN_URL = import.meta.env.VITE_ADMIN_LOGIN_URL || '';
+
+// Set at build time after the backend is deployed. Never put private keys here.
+export const SERVICE_API_URL = (import.meta.env.VITE_SERVICE_API_URL || '').replace(/\/$/, '');
 
 export const ROUTES = [
   { from: 'Dar es Salaam', to: 'Zanzibar', code: 'DAR → ZNZ', direction: 'Mainland to island' },

@@ -38,6 +38,9 @@ jobs:
         run: npm ci
 
       - name: Build website
+        env:
+          VITE_SERVICE_API_URL: ${{ vars.FANAAR_API_URL }}
+          VITE_ADMIN_LOGIN_URL: ${{ vars.FANAAR_ADMIN_URL }}
         run: npm run build
 
       - name: Upload website

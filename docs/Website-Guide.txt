@@ -1,944 +1,421 @@
 FANAAR LOGISTICS WEBSITE MAINTENANCE GUIDE
-Updated 22 October 2026
+Updated 23 October 2026
 
-This guide explains the current website, where to change its content, how to
-publish updates, how to connect a custom domain, and how to add an in-page
-service popup after the provider enables embedding. It is written for the
-website owner and the person maintaining the React code. Open this UTF-8 text file in
-Notepad, Visual Studio Code, or Word. Code examples use plain quotation marks.
+This guide describes the customer React website and its connection to
+Fanaar's own backoffice. The previous external portal/embedding recipe has
+been retired. Keep this file with the customer source; see the separate
+backoffice SETUP.txt for account, database, login and cloud setup.
 
-QUICK FIND
-1  Current status and important addresses
-2  Website structure and every project file
-3  Add or change the phone and WhatsApp numbers
-4  Change routes, wording, photos, colours and the admin link
-5  Run and check the website on your computer
-6  Save changes on GitHub and publish an update
-7  Add or change the custom domain
-8  Prepare for portal embedding
-9  Exact future embedding changes and checks
-10 Troubleshooting and recovery
-11 Reference links
+1. CURRENT ADDRESSES AND RELEASE STATUS
 
-==========================================================================
-1  CURRENT STATUS AND IMPORTANT ADDRESSES
-==========================================================================
-
-Public source repository:
-https://github.com/Abuubakry-Ali/fanaar-logistics
-
-The complete React website is stored in this PUBLIC repository. The website
-uses GitHub Pages with a separate manual deployment. GitHub Free supports
-Pages from public repositories. A successful Build check does not publish.
-
-Current website:
-https://fanaarlogistics.com/
-
-Use the current deployment or repository Settings > Pages to confirm the
-actual published address and HTTPS status after every release. An older
-preview is separate and does not update when a file is saved on GitHub.
-
-Configured tracking destination:
-https://tracking.fanaarlogistics.com/
-
-Configured quote destination:
-https://quote.fanaarlogistics.com/
-
-Provider setup and testing are pending. The latest setup check found these
-hostnames pointing to registrar parking; their HTTPS pages returned 404.
-Do not describe them as functioning services until the provider connects the
-correct instances and the full tracking and quote flows pass live testing.
-
-Admin shortcut: disabled. Current setting in src/config.js:
-export const ADMIN_LOGIN_URL = '';
-
-A possible future example is https://admin.fanaarlogistics.com/ only.
-No admin destination has been confirmed. Restore the shortcut only by setting
-ADMIN_LOGIN_URL to the exact HTTPS login URL supplied and confirmed by the
-provider. The footer link stays hidden while this value is empty.
-
-Quotes and tracking use a separate popup window on desktop when the browser
-permits it. Mobile browsers and blocked popups use a normal new tab.
-Customers close that window or tab to return to Fanaar. The service provider
-will handle quote submission, tracking results and account records once the
-new portals are connected and verified. Fanaar has
-no separate application server, database, email service or API key.
-
-A custom domain alone does not grant iframe permission. Keep the future
-embedding changes disabled until the provider permits the actual website
-origin and the full quote-submission flow has been tested inside the frame.
-Do not infer the new portals' frame policy from any previous service URL.
-
-Current business contact:
+Customer website: https://fanaarlogistics.com/
+Public customer source: https://github.com/Abuubakry-Ali/fanaar-logistics
 Phone: +255 650 090 876
 WhatsApp: 255650090876
 
-The repository and built frontend are public. Do not put passwords, private
-keys or admin credentials in frontend files or this guide. A staff login
-shortcut, if enabled after confirmation, is not an access-control mechanism.
+Planned public API: https://api.fanaarlogistics.com
+Planned staff portal: https://admin.fanaarlogistics.com
 
-==========================================================================
-2  WEBSITE STRUCTURE AND EVERY PROJECT FILE
-==========================================================================
+Planned addresses are not a claim that DNS, HTTPS, authentication or cloud
+resources are already active. The owner has supplied a Cloudflare account
+reference and chosen the first administrator; the private backoffice setup
+guide records that identity. The D1 database and an empty Standard KV photo
+namespace exist, with migrations 1-5 applied remotely. Zero Trust Free is
+active at $0/month. The Google project and OAuth web client are created;
+the Google provider is saved in Cloudflare and its identity-provider Test
+passed. The Worker/staff portal is now deployed behind a Google-only Access
+application with an owner-only allow policy. Actual owner login and an empty
+D1-backed production dashboard passed. Public quote/tracking endpoints are
+not yet anonymously verified. The owner confirmed the exact customer-path
+exceptions and a public bypass policy was saved; application binding and
+anonymous route checks are still pending. The customer website has not been
+updated/published for the new integration.
+Local Worker HTTP checks, including
+delayed KV cleanup, and 37 isolated tests passed. No cloud customer-record,
+email or photo test has been performed. Provider testing and the storage
+schema alone do not make the production screens live.
+R2 has not been activated and is not required for this launch.
 
-Repository root
-  .github/
-    workflows/
-      build.yml
-      deploy-pages.yml
-  public/
-    favicon.svg
-    fonts/
-      manrope-latin.woff2
-      OFL.txt
-    images/
-      cargo-teal.jpg
-      zanzibar-dhow.jpg
-      tanzania-service-map.svg
-      credits.txt
-  src/
-    config.js
-    main.jsx
-    portal.js
-    styles.css
-  docs/
-    Website-Guide.txt              This guide
-  .gitignore
-  index.html
-  package.json
-  package-lock.json
-  vite.config.js
+The public website remains on GitHub Pages. Saving code runs a Build check;
+publishing is a separate manual Deploy to GitHub Pages workflow. A local
+preview and any older separately hosted preview are different deployments.
+Verify the actual live website after each release.
+
+The prepared new customer UI uses its own quote and tracking dialogs, not another
+company's page or iframe. A quote creates a request; staff review and accept
+it, create a shipment, and share its separately generated tracking number.
+Public tracking shows the approved progress and dates without exposing
+private carrier, collector, contact, photo or payment records.
+
+The customer repository and built JavaScript are public. Private backend
+source belongs in a separate private repository. Passwords, provider keys,
+OAuth secrets, customer data and database backups never belong in this
+public project. A hidden footer shortcut is not a security control.
+
+2. REPOSITORIES AND SOURCE FILES
+
+Customer project: the root of the fanaar-logistics repository.
+Backoffice project: the root of the separate private fanaar-backoffice
+repository. File paths below are relative to the customer repository unless
+explicitly identified as backoffice files. Use the intended repository
+checkout when preparing an update.
 
 src/config.js
-  The first place to look for routine settings. Holds CONTACT.phone,
-  CONTACT.whatsapp, TRACKING_URL, QUOTE_URL, ADMIN_LOGIN_URL, the ROUTES array,
-  and the derived whatsappNumber. Change your contact details here once.
-
+  CONTACT.phone and CONTACT.whatsapp; route cards; derived whatsappNumber;
+  SERVICE_API_URL from VITE_SERVICE_API_URL; ADMIN_LOGIN_URL from
+  VITE_ADMIN_LOGIN_URL. These last two are public build-time addresses.
 src/main.jsx
-  Builds the actual page. Brand draws the logo; QuoteLink controls all quote
-  links; ContactDialog shows phone and WhatsApp choices; CoastMap displays
-  the geographic service-map image; faqs holds question and answer text; App contains
-  the navigation, hero image, tracking form, route cards, services, about
-  section, shipping steps, FAQ, call to action, footer and floating contact
-  button. App's handleTracking validates and forwards the reference. The
-  createRoot call at the bottom starts the React application.
-
-src/portal.js
-  openPortalPopup opens the service page in a separate browser window.
-  It returns false on small screens or if popup creation fails so the normal
-  link or form can open a tab. This is the current external-window behaviour;
-  it does not embed the service or read its content.
-
+  Brand/logo, navigation, sticky contact bar, hero, route cards, map,
+  services, about text, FAQ, footer and customer dialog entry points.
+  The tracking input accepts a shipment code, not a phone-number search.
+src/customer-portal.jsx
+  Friendly multi-step quote form, success reference and tracking timeline.
+  Contact/route, cargo, photos and pickup details are separate form steps.
+src/customer-api.js
+  Calls the configured API, handles failures and prepares/resizes photos.
+  Its API base must be the Worker origin, not an endpoint ending in /api.
+src/customer-portal.css
+  Customer form/dialog, upload, loading, error and timeline styling.
 src/styles.css
-  All styling, colours, layout, phone layouts, dialog appearance and screen
-  size adjustments. The :root variables include --ink, --muted, --orange,
-  --cream and --line. Some styles have later overrides, so inspect matching
-  selectors throughout the file before making a change.
-
+  Main page layout, colours, responsive rules and fixed/sticky contact bar.
+  Inspect later overrides when changing a selector.
+src/portal.js
+  Legacy separate-window helper. The new own quote/tracking UI does not
+  require iframe integration; do not restore an external popup by accident.
 public/favicon.svg
-  The small Fanaar icon in the browser tab. Edit or replace it if the brand
-  icon changes. The inline logo on the page is separate, inside Brand.
-
-public/fonts/manrope-latin.woff2
-  The locally hosted Manrope font used by the page.
-
-public/fonts/OFL.txt
-  The font licence. Keep it with the font when copying or publishing files.
-
+  Browser tab icon; separate from the inline Brand logo in main.jsx.
+public/fonts/manrope-latin.woff2 and public/fonts/OFL.txt
+  Local font and required licence. Preserve the licence with the font.
 public/images/cargo-teal.jpg
-  Hero photograph of a cargo vessel.
-
+  Hero cargo photograph. It is illustrative, not a vessel ownership claim.
 public/images/zanzibar-dhow.jpg
-  Photograph in the about section.
-
+  About-section photograph.
 public/images/tanzania-service-map.svg
-  Geographic service map derived from Natural Earth public-domain data.
-  Contains a Tanzania overview and an enlarged coastal view, highlighting
-  Dar es Salaam, Tanga, Unguja and Pemba as service locations. Edit map
-  geometry and labels in this asset; CoastMap loads it using BASE_URL so it
-  also works under the GitHub Pages project subfolder.
-
+  Actual geographic outline with Tanzania overview and enlarged coast,
+  highlighting Dar es Salaam, Tanga, Unguja and Pemba. The map does not
+  automatically add routes or imply an office at each marker.
 public/images/credits.txt
-  Photography and map-data sources and attribution notes. Update when
-  replacing photographs or geographic data.
-
+  Photo and Natural Earth map sources. Preserve/update asset credits.
 index.html
-  The HTML shell. Change the browser title, search-description text and
-  theme colour here. It contains the root element into which React renders.
-
-package.json
-  Project name, scripts and dependency declarations. "private": true here
-  prevents accidental npm package publication; GitHub repository privacy is
-  controlled separately in GitHub settings.
-
-package-lock.json
-  Exact dependency versions for repeatable npm ci installations. Keep it
-  committed. Let npm update it when dependencies intentionally change.
-
+  Browser title, search description, theme colour and React root shell.
+package.json and package-lock.json
+  Scripts, dependency declarations and exact installation versions.
+  package.json private:true blocks npm publication; it does not make the
+  GitHub repository private. Keep the lock file when dependencies change.
 vite.config.js
-  Vite development and build settings. VITE_BASE_PATH chooses the deployment
-  subfolder; otherwise the default is /. Local ports are 5173 for development
-  and 4173 for the production preview.
-
+  Vite configuration; VITE_BASE_PATH selects / or a project subfolder.
 .github/workflows/build.yml
-  Automatically installs dependencies and builds after pushes to main. It
-  can also run manually. A successful check means the code builds; it does
-  not mean the website has been published or that quote submissions work.
-
+  Automatic build verification after a push. It does not publish the site.
 .github/workflows/deploy-pages.yml
-  Manual GitHub Pages deployment. It gets the Pages base path, installs,
-  builds, uploads dist and deploys the site. It requires Pages to be enabled
-  with GitHub Actions as the source. It does not run on every push. The
-  public repository can use GitHub Pages on GitHub Free.
-
+  Manual Pages workflow, build-time API/admin environment and Pages base
+  path. It publishes dist after a successful build.
 .gitignore
-  Excludes node_modules, dist and local environment files from Git. Do not
-  upload installed dependencies or local credentials.
-
-
+  Excludes dependencies, dist and local environment files. Check before push.
 docs/Website-Guide.txt
-  The owner and developer handover instructions. It is outside public, so
-  Vite does not copy it into the customer website.
+  This guide; outside public so it is not copied into the customer build.
+node_modules and dist
+  Generated directories; recreate with npm ci and npm run build. Do not
+  upload them as editable source or commit local credentials.
 
-Generated folders on your computer
-  node_modules contains installed packages; recreate it with npm ci.
-  dist contains the built public website; recreate it with npm run build.
-  Neither folder is editable source or needs to be committed.
+The private backoffice SETUP.txt explains its own file map. The backend uses
+Worker code under src, D1 migrations, private Standard KV photos and a React staff
+app under admin. API.md is its detailed developer interface reference.
 
-==========================================================================
-3  ADD OR CHANGE THE PHONE AND WHATSAPP NUMBERS
-==========================================================================
+3. CHANGE PHONE AND WHATSAPP
 
-1. Sign in to GitHub and open the Fanaar repository.
-2. Open src, then config.js. Use the pencil or Edit this file action.
-3. The current business settings are:
+1) Open the customer repository's src/config.js, or the canonical local file.
+2) Change only the confirmed business contact values:
 
    export const CONTACT = {
      phone: '+255 650 090 876',
      whatsapp: '255650090876',
    };
 
-4. Change those values only when the business confirms a new number. For a
-   Tanzanian number use country code 255 and omit the local leading zero.
-   Phone may include a + and display spaces. WhatsApp must contain digits
-   only, with no +, spaces or punctuation. The numbers may be the same or
-   different. Leave a setting as '' only if that contact method is unavailable.
-5. Commit the change, wait for Build to pass, then publish using section 6.
-6. Inspect the live top-bar, contact-dialog and lower call-link destinations.
-   The current phone links must point to tel:+255650090876 and WhatsApp to
-   https://wa.me/255650090876. Hover, copy the link address or inspect href;
-   no call or message needs to be placed for this check.
-7. Check both desktop and mobile layouts. Every displayed phone-number link
-   should offer the phone destination. Desktop devices may need a calling app.
+3) Use 255 instead of a Tanzanian local leading zero. Phone may contain a +
+   and display spaces; WhatsApp must have international digits only.
+4) Preserve the surrounding braces, quotes and semicolons. Save/commit,
+   wait for Build, then manually publish using section 7.
+5) Inspect live phone destinations: tel:+255650090876. WhatsApp destinations
+   should be https://wa.me/255650090876. No test call/message is needed.
+6) Check the sticky top bar, contact dialog and lower call action on desktop
+   and mobile. The top bar should remain available while scrolling.
 
-If only WhatsApp is configured, the top bar uses that number as a WhatsApp
-link. Configure phone when the top number should offer a phone call.
-Until a number is configured, the site displays "Number coming soon".
+The website contact setting and the backend's invoice Settings are separate.
+Update both when the business number changes. Issued invoices retain their
+saved issuer details; changing the website does not rewrite old invoices.
 
-==========================================================================
-4  CHANGE ROUTES WORDING PHOTOS COLOURS AND THE ADMIN LINK
-==========================================================================
+4. CHANGE ROUTES, MAP, WORDING, PHOTOS OR COLOURS
 
-Routes
-  Edit ROUTES in src/config.js to change the route cards. Each entry has
-  from, to, code and direction. Current service is Dar es Salaam to Zanzibar,
-  Zanzibar to Dar es Salaam, and Zanzibar to Tanga.
+Routes: edit ROUTES in src/config.js. Current route cards are Dar es Salaam
+to Zanzibar, Zanzibar to Dar es Salaam, and Zanzibar to Tanga. Other route
+wording in main.jsx, FAQ/footer and index.html is separate. The customer
+form's destination choices are in customer-portal.jsx; backend validation
+must also accept a newly confirmed destination. Review all together.
 
-  Route cards are generated from ROUTES. Other route references are written
-  separately in src/main.jsx: the top bar, hero, FAQ and footer. Update these
-  as well if the route network changes. Also update the description in
-  index.html when necessary.
+Map: edit public/images/tanzania-service-map.svg using verified positions.
+Keep the actual mainland/island outlines and both view scales consistent.
+Update CoastMap's alt text if content changes. ROUTES does not redraw the
+map. Preserve the Natural Earth information in credits.txt.
 
-Geographic service map
-  CoastMap in src/main.jsx displays public/images/tanzania-service-map.svg
-  with a BASE_URL image path and descriptive alt text. The SVG uses Natural
-  Earth countries, lakes and populated places data. It contains two views
-  at different scales: Tanzania as a whole and an enlarged coastal area.
+Wording/logo: find the visible text or Brand in main.jsx. Customer form
+wording lives in customer-portal.jsx. Preserve JSX tags and accessibility
+labels. The contact bar must continue to provide its actual call link.
 
-  Edit the map asset to change its labels or location markers, using
-  verified geographic positions. Keep the country outline, the island
-  geography, viewBox and the two view scales consistent. Update CoastMap's
-  alt text if the map content changes. Preserve the Natural Earth source
-  information in public/images/credits.txt.
+Photos: replace the same public/images filenames for a simple change;
+otherwise update paths too. Keep suitable alt text and reasonable file
+sizes. Record the real source/licence in credits.txt.
 
-  Changing ROUTES does not redraw this image. The current map highlights
-  Dar es Salaam, Tanga, Unguja and Pemba as service locations. Pemba's map
-  marker does not add a specific route or claim an office. Keep the three
-  existing route entries unless the business confirms a new route.
+Colours/spacing: begin with :root in styles.css, then inspect matching
+component rules and later overrides. The customer dialog has separate CSS.
+Test focus indicators, contrast, small screens and sticky-bar overlap.
 
-Wording and company logo
-  Search for the visible wording in src/main.jsx and edit the relevant JSX
-  text. Preserve tags, braces and quotation marks. FAQ content is in faqs.
-  Brand controls the page logo and company lettering. The current page is
-  English; translating it requires reviewing all visible text and labels.
+Browser/search text: edit title/description in index.html. Search engines
+choose when to refresh their listings after publication.
 
-Photos
-  For the simplest replacement, use the same filenames in public/images.
-  Keep the files reasonably small. If the subject changes, update alt text
-  in src/main.jsx. To use a different filename, update the matching image
-  path in src/main.jsx too. Update public/images/credits.txt
-  for the new source and keep any required licence information.
+5. CONNECT OR CHANGE THE OWN API AND ADMIN ADDRESS
 
-Colours and spacing
-  Start with :root in src/styles.css. --orange controls many action buttons;
-  --ink controls the main dark colour; --cream controls the light background.
-  Search for individual fixed hex values if a component does not follow a
-  variable. Test contrast, focus outlines and small screens after changes.
+Do this only after the Cloudflare deployment is ready and tested. The
+intended Worker origins are examples until confirmed live:
 
-Browser tab and search description
-  Change <title> and the description meta tag in index.html. Search engines
-  choose when to refresh their listing; a deployment does not force an
-  immediate search result change.
+  FANAAR_API_URL    https://api.fanaarlogistics.com
+  FANAAR_ADMIN_URL  https://admin.fanaarlogistics.com
 
-Service account links
-  Configured TRACKING_URL is https://tracking.fanaarlogistics.com/ and
-  QUOTE_URL is https://quote.fanaarlogistics.com/. Provider setup and live
-  integration testing are still pending. Change the constants in
-  src/config.js only for confirmed replacement pages. Test the correct
-  account and exact path. The tracking box sends GET with ref, containing a
-  reference or phone number. The provider must support that contract; if it
-  changes, update handleTracking and the native form together.
+On GitHub open Settings > Secrets and variables > Actions > Variables.
+Create/update those REPOSITORY VARIABLES. The Pages workflow maps them to:
 
-  A URL edit does not change visible wording in src/main.jsx, the external
-  popup behavior in src/portal.js, or the provider's embedding permission.
-  Review wording and titles in main.jsx separately when rebranding.
+  VITE_SERVICE_API_URL  -> SERVICE_API_URL in src/config.js
+  VITE_ADMIN_LOGIN_URL  -> ADMIN_LOGIN_URL in src/config.js
 
-Admin login
-  The shortcut is disabled: ADMIN_LOGIN_URL = '' in src/config.js. The footer
-  renders its login link only when this setting has a nonempty value.
-  https://admin.fanaarlogistics.com/ is a proposed example, not a confirmed
-  destination. To restore the shortcut, obtain the exact working HTTPS login
-  URL from the provider, set ADMIN_LOGIN_URL, test it, and publish using
-  section 6. The footer markup remains in main.jsx. Keep staff authentication
-  external and never put credentials in frontend files or this repository.
+These values are read at build time. They are embedded in public JavaScript;
+they are not private keys. A saved variable does not alter an already-built
+website. Rebuild and manually deploy after changing one.
 
-==========================================================================
-5  RUN AND CHECK THE WEBSITE ON YOUR COMPUTER
-==========================================================================
+The API value is only the HTTPS origin, with no /api suffix. Customer code
+adds /api/quotes or /api/tracking/<code>. The staff value is the confirmed
+portal entry page. An empty admin value hides its footer shortcut. An empty
+API value gives an unavailable message with phone/WhatsApp alternatives;
+it does not pretend to save customer data.
 
-Install Node.js 22 from its official source if it is not already available.
-Clone the public repository, or use Code > Download ZIP and extract it.
-Sign into GitHub with your own account when you need to push changes.
-Open a terminal in the folder that contains package.json. Do not run commands
-inside the outer ZIP folder.
+The two customer dialogs use this API base; there are no separate external
+tracking/quote page destinations to configure. Do not paste a password,
+shared admin token or Resend secret into config.js or any VITE_ variable.
 
-Install the versions in package-lock.json:
+On the backend, PUBLIC_ORIGIN must match the actual customer origin and
+Access must protect the whole admin hostname. The public API hostname must
+allow quote/tracking requests without Google login. Staff APIs still require
+verified identity and active D1 staff membership. See the backoffice guide;
+do not weaken these checks to fix a browser error.
+
+6. RUN LOCALLY AND BUILD
+
+Use Node.js 22 or later. In the canonical customer folder:
+
   npm ci
-
-Start the development server:
   npm run dev
 
-Open the local address printed by Vite, normally:
-  http://127.0.0.1:5173/
+Open the printed loopback address, normally http://127.0.0.1:5173.
+For a local backend preview only, set the value before starting Vite:
 
-Build the production website:
+  $env:VITE_SERVICE_API_URL = 'http://127.0.0.1:8787'
+  npm run dev
+
+The backend's separate local environment must also be running. Its test
+identity is only for loopback development; never publish or tunnel it.
+Use synthetic data. Never publish a frontend pointing at localhost.
+
+For a production-style local build with confirmed live backend addresses:
+
+  $env:VITE_SERVICE_API_URL = 'https://api.fanaarlogistics.com'
+  $env:VITE_ADMIN_LOGIN_URL = 'https://admin.fanaarlogistics.com'
   npm run build
-
-Preview that build:
   npm run preview
 
-Open the address printed by Vite, normally:
-  http://127.0.0.1:4173/
-
-For a manual build under a project subfolder, PowerShell commands are:
-  $env:VITE_BASE_PATH = '/fanaar-logistics/'
-  npm run build
-  npm run preview
-
-Then preview /fanaar-logistics/ on the local preview address. For a custom
-domain served at its root, use / instead of /fanaar-logistics/. Remove an
-old local override when it is no longer needed:
-  Remove-Item Env:VITE_BASE_PATH -ErrorAction SilentlyContinue
-
-The GitHub Pages workflow sets the base path automatically from Pages
-settings. No source code needs a hard-coded custom domain for image paths.
-
-==========================================================================
-6  SAVE CHANGES ON GITHUB AND PUBLISH AN UPDATE
-==========================================================================
-
-GitHub edits
-1. Open the intended source file in the Fanaar repository and select Edit.
-2. Make the change. Use a short factual commit message and save to main.
-3. Open Actions > Build. Check the newest run for your commit and wait for
-   success. If it fails, open the failed job and repair the reported error.
-
-Local edits
-1. Use your normal authenticated Git workflow to commit and push changes to
-   main. Do not paste tokens into source files, command examples or docs.
-2. Commit source and package-lock.json when it changes. Exclude node_modules
-   and dist. Then check Actions > Build as above.
-
-Publish on GitHub Pages
-1. Open repository Settings > Pages. Under Build and deployment > Source,
-   select GitHub Actions. The public repository supports free Pages hosting.
-2. Open Actions > Deploy to GitHub Pages > Run workflow. Choose main.
-3. Wait for both the build and deploy jobs to succeed.
-4. Open the website URL from the deployment or Settings > Pages. Use that
-   actual URL rather than assuming a project address.
-5. Check the live number, images, tracking and quote destinations. Confirm
-   that Admin login is hidden while ADMIN_LOGIN_URL is empty.
-
-Repeat the manual deployment after future source changes. The separate
-Build workflow never publishes by itself. The current website is
-https://fanaarlogistics.com/. After each deployment, use the actual address
-shown by the deployment or Pages settings to confirm the update is visible.
-
-Optional later hosting elsewhere
-  This is a static Vite site. A static host generally runs npm run build
-  and publishes dist with base /. Grant only the repository access you
-  choose. Use that host's current domain settings and DNS instructions.
-  Netlify is not connected at present.
-
-==========================================================================
-7  ADD OR CHANGE THE CUSTOM DOMAIN
-==========================================================================
-
-The website uses GitHub Pages with https://fanaarlogistics.com/ as its current
-custom domain. Use this procedure only when changing that website domain.
-Replacing tracking or quote links does not require changing Pages or its DNS.
-The example.com values below are examples for a future domain you own.
-
-1. In personal GitHub Settings > Pages, add and verify your domain using the
-   exact TXT record GitHub supplies. Keep that TXT record.
-2. In the repository Settings > Pages > Custom domain, enter example.com
-   or www.example.com and save it before changing the website DNS.
-3. At your domain provider, use GitHub's current DNS values. For www, create
-   CNAME www -> Abuubakry-Ali.github.io (no https, slash or repository name).
-   For the root domain, use ALIAS/ANAME -> Abuubakry-Ali.github.io if supported,
-   or the A records below. Preserve unrelated email records.
-
-   Root A records for host @:
-     185.199.108.153
-     185.199.109.153
-     185.199.110.153
-     185.199.111.153
-
-4. Wait for GitHub's DNS check and HTTPS certificate; then enable Enforce
-   HTTPS. DNS and certificate changes may take up to 24 hours.
-5. Run Deploy to GitHub Pages again so Vite uses the domain's root path.
-6. Test the root and www addresses, photos, phone and service links.
-
-With this Actions workflow, no CNAME source file is required. Review current
-GitHub DNS documentation before applying these recorded values. If changing
-an existing domain, verify the new domain first, replace the Pages setting
-and DNS records, and remove obsolete website DNS records when finished.
-
-The custom domain changes the address visitors see. It does not change
-repository visibility or the hosting plan. If portal embedding is enabled,
-ask the provider to allow the new origin too, then retest the embedded form.
-
-==========================================================================
-8  PREPARE FOR PORTAL EMBEDDING
-==========================================================================
-
-What embedding means
-  A real service page appears in an iframe inside a dialog over Fanaar. The
-  customer can still see Fanaar behind it. They fill and submit the provider's form
-  inside that frame, or view tracking results there. This needs no separate
-  Fanaar server. It is different from recreating the provider's form in React.
-
-Provider prerequisites
-1. Give the provider the actual website origin: https://fanaarlogistics.com.
-   An origin is scheme and hostname, plus a port when used; it has no path.
-   Include https://www.fanaarlogistics.com only if that is also an active
-   website origin. Include local preview origins only if explicitly allowed.
-2. Ask them to allow both https://tracking.fanaarlogistics.com/ and
-   https://quote.fanaarlogistics.com/ to appear in a frame, including any
-   redirects and result pages. A custom hostname does not grant permission.
-3. They must configure their HTTP response headers. For the current website,
-   an example allowance is:
-
-   Content-Security-Policy: frame-ancestors 'self' https://fanaarlogistics.com;
-
-   The provider should merge approved origins into its existing policy and
-   remove conflicting X-Frame-Options restrictions on these public pages.
-   A Fanaar HTML meta tag cannot change the provider's framing policy.
-   ALLOW-FROM is not a current replacement for frame-ancestors.
-4. Ask the provider to test cookies, sessions, CSRF protection and successful
-   enquiry submission inside the frame. The branded subdomains are still
-   different origins from the main website. They may be same-site when they
-   stay under the same HTTPS parent domain, but cross-site redirects and
-   browser cookie restrictions can still affect the flow. The provider must
-   choose a supported design and retain CSRF protection. Display alone is
-   not proof of successful submission. Do not disable security to make it work.
-5. Obtain the recommended iframe configuration and confirm the account that
-   receives quotes. Keep a separate-page fallback available.
-
-CORS permission is not needed merely to display a provider page in an iframe.
-Browser fetch/API integration is a different approach and requires a supported
-API and appropriate access. This guide's future example embeds the pages.
-
-If Fanaar's host adds its own Content-Security-Policy, its frame-src must allow
-https://tracking.fanaarlogistics.com and https://quote.fanaarlogistics.com.
-Test the published Fanaar page directly. Preview tools may add extra frame
-ancestors that the provider has not approved.
-
-The future changes in section 9 are not active in the current website.
-
-==========================================================================
-9  EXACT FUTURE EMBEDDING CHANGES AND CHECKS
-==========================================================================
-
-Apply this section only after section 8 is complete. Back up or commit the
-current source first. Work on source files, not dist. These instructions match
-the current React app; later structural changes may need a developer review.
-The feature starts disabled so you can build safely before an approved test.
-
-When copying code, copy only the content between the triple-backtick lines;
-do not copy those lines or the js, jsx or css language labels into the file.
-
-9.1  ADD ONE CONFIGURATION FLAG
-
-In src/config.js add the following after QUOTE_URL. Keep confirmed service exports and business contact settings. Do not activate the proposed admin URL as part of this change:
-
-```js
-// Set true only after the provider allows this website to embed BOTH public pages.
-// Set false and republish at any time to restore popup/new-tab mode.
-export const EMBED_PORTALS = false;
-```
-
-9.2  CREATE src/PortalDialog.jsx WITH THIS COMPLETE CONTENT
-
-```jsx
-import React, { createContext, useCallback, useContext, useEffect, useId, useRef, useState } from 'react';
-import { ExternalLink, X } from 'lucide-react';
-import { EMBED_PORTALS } from './config';
-
-const PortalContext = createContext(null);
-
-export function usePortal() {
-  const openPortal = useContext(PortalContext);
-  if (!openPortal) throw new Error('usePortal must be inside PortalProvider.');
-  return openPortal;
-}
-
-function PortalDialog({ portal, onClose }) {
-  const dialogRef = useRef(null);
-  const headingId = useId();
-  const helpId = useId();
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    const previousFocus = document.activeElement;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    if (!dialog.open) dialog.showModal();
-
-    return () => {
-      if (dialog.open) dialog.close();
-      document.body.style.overflow = previousOverflow;
-      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
-        previousFocus.focus({ preventScroll: true });
-      }
-    };
-  }, [onClose]);
-
-  return (
-    <dialog
-      ref={dialogRef}
-      className="portal-dialog"
-      aria-labelledby={headingId}
-      aria-describedby={helpId}
-      onCancel={onClose}
-    >
-      <header className="portal-dialog-header">
-        <div>
-          <h2 id={headingId}>{portal.title}</h2>
-          <p id={helpId}>Complete the service page below. Use Close when you are finished.</p>
-        </div>
-        <button type="button" className="portal-close" onClick={onClose} autoFocus>
-          <X size={18} aria-hidden="true" /> Close
-        </button>
-      </header>
-      <iframe
-        key={portal.url}
-        className="portal-frame"
-        src={portal.url}
-        title={`${portal.title} — Fanaar Logistics`}
-      />
-      <footer className="portal-dialog-footer">
-        <span>If the page does not display or submit, open it separately.</span>
-        <a href={portal.url} target="_blank" rel="noopener noreferrer">
-          Open separately <ExternalLink size={15} aria-hidden="true" />
-        </a>
-      </footer>
-    </dialog>
-  );
-}
-
-export function PortalProvider({ children }) {
-  const [portal, setPortal] = useState(null);
-  const closePortal = useCallback(() => setPortal(null), []);
-
-  const openPortal = useCallback((url, title) => {
-    if (!EMBED_PORTALS || typeof window.HTMLDialogElement?.prototype?.showModal !== 'function') {
-      return false;
-    }
-    setPortal({ url, title });
-    return true;
-  }, []);
-
-  return (
-    <PortalContext.Provider value={openPortal}>
-      {children}
-      {portal && <PortalDialog portal={portal} onClose={closePortal} />}
-    </PortalContext.Provider>
-  );
-}
-```
-
-This deliberately keeps portal state separate from ContactDialog's modal state. A quote opened from the contact dialog closes the contact dialog and opens the portal without its contact-close callback cancelling the portal. The iframe loads only URLs supplied by the code below. No success-message listener is fabricated. The iframe has no sandbox or credentialless attribute: adding restrictions without the provider's guidance can break its JavaScript, form submission, cookies, or downloads.
-
-9.3  UPDATE src/main.jsx — IMPORTS
-
-Replace the existing config import with the following. ADMIN_LOGIN_URL remains an export even while empty; leave it empty until a real admin destination is confirmed:
-
-```jsx
-import { CONTACT, ROUTES, TRACKING_URL, QUOTE_URL, ADMIN_LOGIN_URL, EMBED_PORTALS, whatsappNumber } from './config';
-```
-
-Keep the existing import of openPortalPopup from './portal'. Add this import after it:
-
-```jsx
-import { PortalProvider, usePortal } from './PortalDialog';
-```
-
-9.4  UPDATE src/main.jsx — REPLACE THE ENTIRE QuoteLink FUNCTION
-
-Replace from function QuoteLink(...) through its closing brace immediately before function ContactDialog(...) with:
-
-```jsx
-function QuoteLink({ children, className = '', onNavigate, ...props }) {
-  const openEmbeddedPortal = usePortal();
-
-  function openQuote(event) {
-    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-    if (openEmbeddedPortal(QUOTE_URL, 'Get a quote') || openPortalPopup(QUOTE_URL)) {
-      event.preventDefault();
-    }
-    onNavigate?.();
-  }
-
-  return (
-    <a
-      href={QUOTE_URL}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={className}
-      title={EMBED_PORTALS ? 'Opens the quote form on this page' : 'Opens the quote form in a separate window'}
-      onClick={openQuote}
-      {...props}
-    >
-      {children}
-    </a>
-  );
-}
-```
-
-All existing quote links now share the same behavior. Normal clicks use the iframe when enabled; Ctrl/Cmd-click and other modified clicks keep the normal external-link behavior. With the flag false, the existing popup/new-tab fallback remains.
-
-9.5  UPDATE src/main.jsx — TRACKING
-
-Add this as the first line inside function App() before its existing state declarations:
-
-```jsx
-const openEmbeddedPortal = usePortal();
-```
-
-Replace the entire existing handleTracking function with:
-
-```jsx
-function handleTracking(event) {
-  const reference = tracking.trim();
-  if (!reference) {
-    event.preventDefault();
-    event.currentTarget.elements.ref.setCustomValidity('Enter a tracking reference or phone number.');
-    event.currentTarget.elements.ref.reportValidity();
-    return;
-  }
-
-  const destination = new URL(TRACKING_URL);
-  destination.searchParams.set('ref', reference);
-  if (openEmbeddedPortal(destination.href, 'Track your package') || openPortalPopup(destination.href)) {
-    event.preventDefault();
-  }
-}
-```
-
-Keep the tracking form's action, method="get", target="_blank", rel, input name="ref", and onChange logic as they are. They preserve the native form fallback. URLSearchParams encodes phone numbers, spaces, + signs, and references correctly. Do not add quote-form query prefilling unless the provider documents and verifies it for the new portal. Support for such parameters has not been confirmed.
-
-9.6  UPDATE src/main.jsx — ROOT WRAPPER
-
-At the bottom, replace this exact line:
-
-```jsx
-createRoot(document.getElementById('root')).render(<App/>);
-```
-
-with:
-
-```jsx
-createRoot(document.getElementById('root')).render(
-  <PortalProvider>
-    <App />
-  </PortalProvider>
-);
-```
-
-Leave App's existing ContactDialog rendering and its state unchanged. Keep the footer's conditional admin rendering and ADMIN_LOGIN_URL = '' unchanged. Any later confirmed Admin login shortcut should remain external; do not embed staff authentication.
-
-9.7  APPEND THIS COMPLETE CSS TO THE END OF src/styles.css
-
-```css
-/* Embedded service portal, enabled only after provider approval. */
-.portal-dialog {
-  width: min(960px, calc(100vw - 28px));
-  max-width: none;
-  height: min(860px, calc(100vh - 28px));
-  height: min(860px, calc(100dvh - 28px));
-  max-height: none;
-  margin: auto;
-  padding: 0;
-  border: 1px solid #dce2d5;
-  border-radius: 12px;
-  background: var(--cream);
-  color: var(--ink);
-  box-shadow: 0 24px 90px #0d2a3050;
-  overflow: hidden;
-}
-.portal-dialog[open] { display: flex; flex-direction: column; }
-.portal-dialog::backdrop { background: #123e417a; backdrop-filter: blur(5px); }
-.portal-dialog-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 18px 20px;
-  border-bottom: 1px solid var(--line);
-  flex: 0 0 auto;
-}
-.portal-dialog-header h2 { margin: 0; font-size: 20px; line-height: 1.4; letter-spacing: -.4px; }
-.portal-dialog-header p { margin-top: 5px; font-size: 12px; line-height: 1.6; color: #5e7057; }
-.portal-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 44px;
-  padding: 9px 12px;
-  border: 1px solid #cbd4cb;
-  border-radius: 5px;
-  font-size: 13px;
-  font-weight: 700;
-  flex: 0 0 auto;
-}
-.portal-close:hover { background: #ebeee7; }
-.portal-frame { display: block; width: 100%; flex: 1 1 0; min-height: 0; border: 0; background: #fff; }
-.portal-dialog-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 20px;
-  border-top: 1px solid var(--line);
-  font-size: 11px;
-  line-height: 1.6;
-  color: #5e7057;
-  flex: 0 0 auto;
-}
-.portal-dialog-footer a {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-@media (max-width: 720px) {
-  .portal-dialog { width: calc(100vw - 16px); height: calc(100vh - 16px); height: calc(100dvh - 16px); border-radius: 8px; }
-  .portal-dialog-header { padding: 12px; gap: 10px; }
-  .portal-dialog-header h2 { font-size: 18px; }
-  .portal-dialog-header p { font-size: 11px; }
-  .portal-dialog-footer { padding: 8px 12px; flex-wrap: wrap; gap: 0 12px; }
-}
-```
-
-9.8  KEEP CUSTOMER HELP ACCURATE IN EITHER MODE
-
-In ContactDialog replace its existing portal-help paragraph (currently "Complete our quote form in the secure window, then close it to return here.") with:
-
-```jsx
-<p className="portal-help">{EMBED_PORTALS ? 'Complete our quote form in the dialog. Close it when you are finished.' : 'Complete our quote form in the secure window, then close it to return here.'}</p>
-```
-
-Replace the existing complete <span className="tracking-powered">...</span> with:
-
-```jsx
-<span className="tracking-powered"><ShieldCheck size={12}/>{EMBED_PORTALS ? 'Shipment tracking · opens on this page' : 'Shipment tracking · opens a secure window'}{!EMBED_PORTALS && <ExternalLink size={10}/>}<span className="sr-only">{EMBED_PORTALS ? '. Close the tracking dialog when finished. An Open separately link is available inside it.' : '. A new tab may open on mobile. Close it to return to Fanaar.'}</span></span>
-```
-
-In the cta-section replace the exact paragraph 'Fill in our quote form, then close the window to return here.' with:
-
-```jsx
-<p>{EMBED_PORTALS ? 'Fill in our quote form in the dialog, then close it when you are finished.' : 'Fill in our quote form, then close the window to return here.'}</p>
-```
-
-Replace the entire const faqs = [...] block with:
-
-```jsx
-const faqs = [
-  ['Where does Fanaar Logistics ship?', 'We transport cargo by sea from Dar es Salaam to Zanzibar, from Zanzibar to Dar es Salaam, and from Zanzibar to Tanga. Choose your route when preparing a quote request.'],
-  ['How do I track my package?', EMBED_PORTALS
-    ? 'Enter your shipment reference or the phone number associated with your shipment in the tracking box. Your tracking page opens in a dialog here. Close it when finished. Use Open separately if the page does not work in your browser.'
-    : 'Enter your shipment reference or the phone number associated with your shipment in the tracking box. Your tracking information opens in a secure service window, or a new tab on mobile. Close it when you are done to return to Fanaar.'],
-  ['How much will my shipment cost?', EMBED_PORTALS
-    ? 'Your quote depends on the route, cargo type, weight, dimensions, and handling needs. Use Get a quote to fill in the quote form in the dialog. Our team confirms the price before you ship.'
-    : 'Your quote depends on the route, cargo type, weight, dimensions, and handling needs. Use Get a quote to fill in the enquiry form in the service window. Our team confirms the price before you ship.'],
-  ['How do I arrange a shipment?', EMBED_PORTALS
-    ? 'Click Get a quote, enter your cargo details and route in the quote dialog, and submit. Wait for the provider to confirm receipt before closing. Use Open separately if the form does not work in your browser. Our team confirms the price, sailing date, and drop-off instructions.'
-    : 'Click Get a quote to open the real quote form. Enter your cargo details and preferred route, then submit directly to our team through the provider. Close that window to return here. Our team confirms the price, sailing date, and drop-off instructions.'],
-];
-```
-
-9.9  TEST, ENABLE, AND PUBLISH
-
-Install dependencies if needed with npm ci. Run npm run build. With EMBED_PORTALS = false, npm run dev should preserve the current popup/new-tab behavior. After provider approval, change only the flag to true and test from an origin the provider explicitly allowed. Local preview uses npm run preview after building; if the provider allows only production, deploy to that allowed origin for the integration check.
-
-Verify: every quote button including the one inside Contact us; quote form field validation; a known tracking reference and phone number; an unknown reference; Close button; Escape when focus is on Fanaar controls; keyboard focus after close; body scroll restoration; narrow mobile layouts; and the Open separately fallback. Escape pressed while focus is inside the cross-origin frame may be handled there, so the visible Close button must remain available. Confirm Admin login is hidden while its setting is empty; test a confirmed external login only if it is enabled later. Coordinate one clearly marked test enquiry with the provider and confirm it arrives in the intended account. A form merely displaying is not proof that its CSRF/session submission works. Do not submit customer data for a connectivity test.
-
-Commit and push source changes to main. Wait for the Build workflow to pass. GitHub Pages is enabled with GitHub Actions as its source. Open Actions > Deploy to GitHub Pages > Run workflow, select main, and run it. Publishing is manual in this export: pushing main runs Build but does not deploy. Wait for the deployment to succeed, then open the published URL and check it. Update this guide's current-status section to describe the activated feature flag, manual Close control, and external fallback. Store this guide outside public assets; no server credentials or tokens belong in it.
-
-If embedding fails later, set EMBED_PORTALS back to false, commit, and push to main. Wait for Build to pass, then run Actions > Deploy to GitHub Pages > Run workflow on main and wait for it to finish. The published site restores popup/new-tab behavior only after that manual deployment succeeds. The same quote links and tracking form provide the fallback without removing the new module. Keep src/portal.js for that fallback.
-
-LIMITS THAT MUST REMAIN CLEAR
-
-The parent cannot inspect the provider's success screen, fields, branding, or document height because they are cross-origin. Leave the dialog open after a quote is sent until the customer closes it. Do not use iframe onLoad as proof of a successful load or submission: load may fire even when an iframe fails. Do not add a timer to declare a quote submitted. Keep fixed viewport-based iframe sizing and scrolling. Automatic close or dynamic content resizing needs a documented cooperation mechanism from the provider, such as validated postMessage events. No provider event contract has been confirmed for the new portals, so this implementation does not listen for one. If the provider later supplies it, validate both exact event.origin and event.source === iframeRef.current.contentWindow, plus message type/shape, before acting.
-
-Code check for this guide
-  An earlier version of these proposed changes built in an isolated copy
-  with the flag false and true. This generic example must be rechecked against
-  the current source before use, including the conditional admin link and current customer wording. It is
-  not active. Build success does not verify provider permissions, cookies or
-  receipt of a quote; those require live provider tests.
-==========================================================================
-10  TROUBLESHOOTING AND RECOVERY
-==========================================================================
-
-A configured service hostname shows a parking page or 404
-  The provider must connect the tracking and quote instances, confirm DNS,
-  exact paths and HTTPS, then verify the correct account and complete flows.
-  Replacing a URL in config.js cannot provision the external application.
-  Keep this status distinct from whether the Fanaar website itself deployed.
-
-The updated number is not live
-  Confirm the change is in src/config.js on main, the Build check passed,
-  and the correct host was deployed. A successful Build alone does not
-  publish. Refresh the actual live URL. The older preview is a separate
-  deployment and does not follow GitHub automatically.
-
-The top number opens WhatsApp instead of calling
-  Configure CONTACT.phone. A WhatsApp-only configuration intentionally uses
-  the WhatsApp link in the top bar. Check the full international number.
-
-GitHub Pages still says upgrade or make the repository public
-  The owner has approved public source. Confirm that you are viewing the
-  correct public repository and refresh Settings > Pages after the visibility
-  change. GitHub Free supports Pages from public repositories. Select GitHub
-  Actions as the publishing source and run the manual deployment.
-
-Blank page or missing photos after publishing
-  Check that dist was built for the correct base path. The project subfolder
-  needs /fanaar-logistics/; a domain root needs /. The Pages workflow chooses
-  this automatically after Pages is configured. Check case-sensitive image
-  filenames and paths. Never upload raw src files as the built website.
-
-The service opens a tab instead of a small browser window
-  This is expected on mobile or when browser policy blocks a popup. The
-  current fallback still opens the service page. Browser controls and
-  address bars cannot be hidden reliably by this website.
-
-An embedded popup says refused to connect or is blank
-  Open its separate-page fallback. Ask the provider to check X-Frame-Options and
-  Content-Security-Policy on the exact response, redirects and result pages.
-  Confirm the allowed origin matches the live domain. Fanaar cannot reliably
-  detect these frame failures using iframe onLoad or onError.
-
-The embedded form displays but does not submit
-  The provider must inspect sessions, cookies and CSRF errors inside the iframe.
-  Test in the affected mobile browser and with third-party cookies blocked.
-  Continue using the separate-page fallback until submission is verified.
-
-The embedded dialog does not close after sending
-  Manual closing is the default. Fanaar cannot read a cross-origin success
-  screen. Automatic closing or content-based resizing needs a provider-supported
-  postMessage contract. If one is added, validate the sender origin, source
-  iframe window and agreed message schema. Do not guess an event name or
-  treat any received message as proof of a successful quote.
-
-Recover a source change
-1. Open the affected file's History in GitHub and identify the last working
-   version. Copy that version's contents back into the current file, or have
-   the maintainer revert the relevant commit through their Git workflow.
-2. Commit the repair to main and wait for Build to pass.
-3. Run the host's deployment again and verify the actual live website.
-4. For the future embedding implementation, switch EMBED_PORTALS back to false
-   and deploy if the provider stops supporting frames. That restores external links.
-
-Before any release
-  [ ] Check desktop and phone layouts; Admin login must stay hidden while
-      ADMIN_LOGIN_URL is empty.
-  [ ] Confirm the visible number and tap-to-call destination.
-  [ ] Test WhatsApp if configured.
-  [ ] Check all three routes and customer wording.
-  [ ] Verify a known tracking reference and an unknown reference.
-  [ ] Test quote validation and a clearly labelled test enquiry agreed with
-      the business; verify receipt in the intended provider account.
-  [ ] Check keyboard navigation, Escape, dialog close and focus return.
-  [ ] Check the separate-page fallback, mobile scrolling and cookie limits.
-  [ ] Confirm the Build check and actual deployment both succeeded.
-  [ ] Verify the live website and record its actual published URL.
-
-==========================================================================
-11  REFERENCE LINKS
-==========================================================================
-
-Product screens and policies can change. These official references were
-checked for the original guide on 18 October 2026; this documentation update
-does not repeat those external checks. Domain and provider settings should
-be reviewed when you actually make the change.
-
-Fanaar public source
-https://github.com/Abuubakry-Ali/fanaar-logistics
-
-GitHub Pages availability
-https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages
-
-Choose a Pages publishing source
-https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
-
-Custom GitHub Pages workflows
-https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
-
-Manage a GitHub Pages custom domain and DNS
-https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site
-
-Verify domain ownership
-https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/verifying-your-custom-domain-for-github-pages
-
-Frame ancestor permissions
-https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/frame-ancestors
-
-X Frame Options restrictions
-https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options
-
-Cookie behaviour
-https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Cookies
-
-Cross-origin messaging
-https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage
-
-End of guide
+Only use those example values after the services are active. Remove old
+terminal overrides when finished:
+
+  Remove-Item Env:VITE_SERVICE_API_URL -ErrorAction SilentlyContinue
+  Remove-Item Env:VITE_ADMIN_LOGIN_URL -ErrorAction SilentlyContinue
+
+For the root custom domain, VITE_BASE_PATH is /. A manual project-folder
+preview would use /fanaar-logistics/. The Pages workflow obtains the correct
+base path from GitHub Pages settings; do not hard-code image URLs to fix it.
+
+7. SAVE ON GITHUB AND PUBLISH
+
+1) Back up or note the current commit before editing. Preserve newer changes.
+2) Edit the intended source file on GitHub or commit/push reviewed local
+   changes to main. Do not bulk-upload an old copy over unrelated files.
+3) Check Actions > Build for that commit and resolve any failure.
+4) Verify the intended Actions API/admin variables and Pages settings.
+5) Open Actions > Deploy to GitHub Pages > Run workflow. Choose main.
+6) Wait for both build and deploy to succeed.
+7) Open the actual published URL shown by the deployment/Pages settings,
+   currently https://fanaarlogistics.com/. Refresh and verify the new content.
+
+The customer repository is PUBLIC, as approved. Keep private backend files
+out of it. There is no need to upload node_modules or dist for this workflow.
+Build alone is not a release and does not prove that a backend transaction
+was saved successfully.
+
+8. ADD OR CHANGE THE CUSTOMER CUSTOM DOMAIN
+
+The root website stays at https://fanaarlogistics.com/. API/admin subdomain
+work must preserve the existing website and email records. Registering a
+subdomain separately is unnecessary; DNS and the service's custom-domain
+configuration connect it.
+
+For a future change to the GitHub Pages WEBSITE domain:
+1) Verify ownership in personal GitHub Settings > Pages using its exact TXT
+   record. Keep that verification record.
+2) Set the repository Settings > Pages > Custom domain to the domain you own.
+3) Apply GitHub's current DNS instructions at the domain's authoritative DNS
+   provider. For www use the confirmed github.io hostname, not a repo URL.
+   For a root A-record setup, the recorded GitHub Pages values are:
+   185.199.108.153, 185.199.109.153, 185.199.110.153, 185.199.111.153.
+   Verify current official documentation before applying recorded values.
+4) Preserve unrelated MX/TXT/email and service records. Wait for DNS and
+   certificate readiness, then enable Enforce HTTPS when available.
+5) Manually deploy Pages again and test photos, routes and contact links.
+6) Update the backend's allowed PUBLIC_ORIGIN and PUBLIC_TRACKING_BASE to
+   the new confirmed customer origin, then retest the complete flow.
+
+With this Actions workflow no source CNAME file is required. A custom domain
+does not change repository visibility or create the backoffice. If moving
+nameservers from Porkbun to Cloudflare for Worker custom domains, first
+inventory and reproduce ALL existing DNS records. Domain registration can
+remain at Porkbun. Do not improvise a service IP or delete root records.
+
+9. WHAT CUSTOMERS AND STAFF CAN DO
+
+Customer quotes preserve the original enquiry details: required name,
+phone, cargo type, origin and destination; optional company, email, weight
+with kg/tons/lbs, volume and message. The friendlier form adds service
+preference, package quantity, dimensions, value, pickup/delivery addresses,
+preferred date and up to three package photos.
+
+Current uploads are JPEG/PNG/WebP photos only. Each prepared upload must
+be at most 1 MiB; input photos over 15 MiB are rejected and accepted photos
+are resized. PDF and Office documents are not supported in this first
+photo-only version. Photos are private staff attachments, not tracking data.
+
+After a genuine API success the customer sees a quote reference. Staff
+review the quote, agree the price, mark it accepted and create the shipment.
+The shipment gets a separate unpredictable tracking number. Staff share it
+with the customer. Public tracking is by that code, not by a phone number.
+
+Staff can review requests; assign private carriers, contacts and departures;
+record the private vessel name on the relevant departure;
+record pickup/ETA/delivery; add public progress; record payments; and print
+operational invoices. The portal has an owner role for Settings and Staff
+access, with normal Staff handling the operational work. New staff also need
+their matching Google email manually added to the Cloudflare Access allow
+policy before login; portal staff changes do not synchronize that allowlist.
+
+Private supplier pricing and costs
+  Supplier rates stores carrier prices by route, service, optional cargo type
+  and unit: per shipment, package, kg, ton or cubic metre. Confirm the current
+  carrier rate yourself. These private reference cards do not calculate a
+  customer quote or automatically fill a shipment's costs.
+
+  In a quote, staff may record an estimated carrier and estimated carrier
+  cost. The estimate's displayed margin is customer quoted amount less that
+  carrier cost only; pickup and other expenses are excluded. The customer
+  price is entered and agreed manually, not generated from the rate card.
+
+  Shipment supplier costs have three separate categories: carrier, pickup
+  and other direct costs. Blank means unknown. Enter 0 only when there is
+  truly no charge; unknown must not be replaced with zero to produce a total.
+  Amounts are nonnegative whole TZS. All three must be known before the full
+  direct-cost total is shown.
+
+  The customer amount for comparison is the issued invoice subtotal BEFORE
+  TAX, or the current quote amount when no invoice exists. The screen's
+  Gross margin is that amount less the three recorded direct costs. This is
+  shipment contribution before overheads/unrecorded expenses, not net profit.
+  It stays unknown if the price or a cost is missing. Payments collected and
+  the invoice total including tax are different figures.
+
+  Dashboard supplier costs include only shipments with complete direct-cost
+  records; its margin total also needs a known customer amount. The missing
+  cost count shows records excluded from these partial totals. They are not
+  complete company accounts. Rates, estimates and supplier margins remain
+  private and do not appear in public tracking or customer invoices.
+
+The database is the record of actual submissions. With no backend connection,
+a form error is not a saved request. Phone/WhatsApp remain useful alternatives.
+
+10. EMAIL, INVOICES AND BUSINESS SETTINGS
+
+Automatic email is optional and requires a verified outgoing sender and
+Worker email configuration. No email service is activated merely by adding
+a form. Notifications marked queued are not delivered messages. SMS and
+automatic WhatsApp delivery are not included.
+
+For incoming info@fanaarlogistics.com forwarding, the owner still needs to
+supply the destination inbox. Use the registrar's forwarding procedure only
+when ready. Forwarding receives mail; it does not provide authenticated
+outgoing domain mail. Manual replies from an ordinary Gmail account are fine.
+
+Fill in real business email, address and payment instructions in backoffice
+Settings before issuing invoices. Prices/payments are whole TZS shillings.
+Do not invent tax IDs or rates. The printable document is an operational
+invoice; legal/fiscal suitability needs the business's own review. Issued
+invoices retain their recorded issuer/customer details.
+
+11. CHECK A RELEASE AND RECOVER
+
+Check desktop and mobile:
+- Sticky phone bar stays visible and its number remains a call link.
+- Quote steps validate, route choices are correct and photos stay within caps.
+- An authorized marked test request appears once in the real staff inbox.
+- Unavailable/misconfigured APIs show a clear error, not a false success.
+- Known tracking code returns the right timeline/ETA; unknown codes fail safely.
+- Customer tracking shows no private carrier/collector/contact/payment/photo data.
+- Generated customer tracking links open the correct code on the main site.
+- Logged-out and unapproved staff users are denied; normal staff cannot manage
+  owners/settings; approved owner and staff accounts have the expected access.
+- Invoice calculations, recorded payments, print layout and issuer details work.
+- Optional email is tested deliberately with a controlled inbox before use.
+
+For a bad frontend release, restore the reviewed previous source or config,
+preserve unrelated changes, then manually deploy again. Backend code rollback
+is separate from database recovery; it does not undo a migration or deletion.
+Back up D1 and private KV photos under the private backoffice procedure.
+
+Storage housekeeping
+  After the customer confirms receipt, staff mark Delivered and review the
+  explicit photo/optional-details cleanup prompt. Status alone does not
+  delete files. No automatic timed expiry or full-history purge is enabled.
+  Core contact/order, tracking, accounting, invoices and payments stay.
+  The default alert is 90%, adjustable by the owner. It estimates this app's
+  recorded photo bytes, including pending deletion, not the whole account's
+  actual/billable usage. Check Cloudflare metrics too. Alerts are not billing
+  caps; email alerts require separate provider configuration.
+
+  The revised cleanup UI must be deployed before these actions are available.
+  Use its durable deletion/retry workflow; do not remove raw KV keys or D1
+  tables to make the dashboard smaller. Save authorized copies first if
+  needed, then verify deletion jobs and allow usage metrics time to refresh.
+  Detailed local steps: Fanaar-Storage-Cleanup.txt in the owner's workspace;
+  private project mirror: docs/Storage-Cleanup.txt.
+
+12. ASSET CREDITS AND REFERENCES
+
+Keep public/images/credits.txt and public/fonts/OFL.txt with their assets.
+Photographs are illustrative and do not imply that Fanaar owns a vessel.
+
+Hero photo: CHUTTERSNAP / Unsplash
+https://unsplash.com/photos/green-cargo-ship-on-body-of-water-5Rlrs3sKVJU
+About photo: Aron Marinelli / Unsplash
+https://unsplash.com/photos/a-sailboat-with-people-on-it-in-the-ocean-U8Z9TthY8r4
+Map: Natural Earth public-domain geography
+https://www.naturalearthdata.com/
+https://www.naturalearthdata.com/about/terms-of-use/
+
+GitHub Pages custom domains:
+https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site
+Cloudflare Google identity provider:
+https://developers.cloudflare.com/cloudflare-one/integrations/identity-providers/google/
+
+Detailed backend setup: SETUP.txt in the separate private fanaar-backoffice
+repository.
