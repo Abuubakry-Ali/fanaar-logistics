@@ -1,9 +1,9 @@
-// Add your Tanzanian business number here when ready.
+// Business contact number displayed on the website.
 // WhatsApp expects international digits without +, spaces, or punctuation.
 // Example format: 255 followed by your complete mobile number.
 export const CONTACT = {
-  phone: '',
-  whatsapp: '',
+  phone: '+255 650 090 876',
+  whatsapp: '255650090876',
 };
 
 export const TRACKING_URL = 'https://cargo.trixa.net/t/5d2e73922193/';
