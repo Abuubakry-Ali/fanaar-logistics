@@ -1,4 +1,4 @@
-// Open the real Trixa page without navigating the Fanaar page.
+// Open the service portal without navigating the Fanaar page.
 // Browsers may choose a tab instead; a blocked popup leaves native links/forms intact.
 export function openPortalPopup(url) {
   if (window.matchMedia('(max-width: 720px)').matches) return false;
