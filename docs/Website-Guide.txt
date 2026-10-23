@@ -38,8 +38,13 @@ Live synthetic booking completion passed: the same-page form saved required
 details into the protected staff record, then the marked test was closed
 with a reason. No live invoice, payment or email was created by that test.
 Invoice/payment/cleanup checks do not yet constitute live customer use.
-Incoming email forwarding is not yet verified, and outbound portal email
-is not configured. R2 is not activated or required; photos use private KV.
+Resend Free outgoing email is configured: the sending domain and DNS are
+verified, and its restricted sending key is stored only as an encrypted
+backend secret. The sender and manual email/PDF tools are deployed. No email
+has been sent; provider acceptance, inbox receipt and emailed PDF attachment
+have not been tested live. The reply inbox choice and incoming forwarding
+for info@fanaarlogistics.com remain unverified. R2 is not activated or
+required; photos use private KV.
 
 The public website remains on GitHub Pages. Saving code runs a Build check;
 publishing is a separate manual Deploy to GitHub Pages workflow. A local
@@ -352,8 +357,7 @@ Link copied confirms success. Paste it into a manual customer reply. This
 does not send an automatic email or WhatsApp message.
 
 Second stage: complete pickup and delivery details
-  This prepared enhancement is available only after the release steps in
-  section 1 are complete. After agreeing the quote and creating the booked
+  This feature is published. After agreeing the quote and creating the booked
   shipment, staff may issue the operational invoice and create a private
   customer completion link from that shipment. Staff review the recipient
   before sharing it manually. The link expires after seven days and can
@@ -422,33 +426,59 @@ a form error is not a saved request. Phone/WhatsApp remain useful alternatives.
 
 10. EMAIL, INVOICES AND BUSINESS SETTINGS
 
-Automatic email is optional and requires a verified outgoing sender and
-Worker email configuration. No email service is activated merely by adding
-a form. Notifications marked queued are not delivered messages. SMS and
-automatic WhatsApp delivery are not included.
+The manual email/PDF tools are already published. Resend Free is configured,
+fanaarlogistics.com and its sending DNS records are verified, and the
+restricted sending key is stored as an encrypted backend secret. It is not
+part of the public website source or build. The deployed sender is
+Fanaar Logistics <info@fanaarlogistics.com>. No email has been sent: provider
+acceptance, inbox receipt and emailed PDF attachments are not yet live-tested.
+Configured does not mean delivery has been demonstrated.
 
-For incoming info@fanaarlogistics.com forwarding, the owner still needs to
-supply or confirm the destination inbox and verify a test message. Follow
-the companion Fanaar-Email-Forwarding.txt for the Porkbun steps; its filenames
-are portable, not machine-specific paths. Existing MX records alone do not
-prove the info forwarding rule is active. Forwarding receives mail; it does not provide authenticated
-outgoing domain mail. Manual replies from an ordinary Gmail account are fine.
+Resend Free allows 100 transactional emails per UTC day and 3,000 per month.
+The daily allowance resets at midnight UTC (03:00 Tanzania time). Each
+recipient counts separately, and any Resend inbound mail shares the quota.
+Paid transactional overages remain off. Keep the reviewed Free plan and
+check provider usage rather than assuming unlimited sending.
 
-Prepared manual email/PDF tools still need publication and verification.
-Staff can download a customer-facing PDF invoice, prepare it for the
-device's Share PDF menu, or open the saved customer's WhatsApp chat with
-text only. Staff choose the app/recipient and attach the PDF themselves.
-An email draft cannot automatically attach the PDF; download and attach it
-manually. A portal send button requires a configured outgoing provider,
-reviewed recipient/message and explicit confirmation. Provider acceptance
-does not prove arrival in the customer's inbox. Saving a status alone does
-not send these manual messages. Supplier costs stay out of customer PDFs.
+In the staff portal, choose Email customer update or Email invoice. Review
+From, Replies to, To, subject and the read-only message; for invoices also
+review the attached PDF. Explicitly confirm before Send update or Send
+invoice. The portal accepts invoice PDF attachments up to 512 KiB and keeps
+private supplier costs, margins and internal notes out of customer PDFs.
+Saving a shipment status does not send a customer email. Existing held
+messages are not released by configuring a sender. SMS and automated
+WhatsApp sending are not included.
+
+Email accepted for delivery means the provider accepted the send request,
+not proof of delivery, inbox placement or reading. Even a provider delivered
+event means acceptance by the recipient's mail server, not proof of inbox
+placement/read. Queued or sending is pending; use Check status before any
+retry. Failed approved messages have a separate reviewed retry action.
+Preview readiness checks configuration, not actual provider delivery.
+
+Staff can Download invoice PDF, Prepare PDF to share and then Share PDF, or
+Open customer WhatsApp. Native sharing lets staff choose an app and recipient;
+if unsupported, use the downloaded file. The WhatsApp chat link fills text
+only: attach the downloaded PDF manually. Open email draft cannot attach
+the PDF automatically; download and attach it in the email app. That draft
+uses the sender account selected in the operator's email app. Opening a
+draft, chat or sharing menu does not send or confirm delivery in the portal.
+
+The reply inbox is still awaiting the owner's choice. Without a separate
+reply address, customer replies fall back to info@fanaarlogistics.com; its
+receiving inbox/forwarding has not been verified. A sending domain does not
+create a receiving mailbox. Confirm the destination and test incoming mail
+separately using Fanaar-Email-Forwarding.txt. Preserve existing MX records.
+Forwarding receives mail; it does not provide authenticated outgoing domain
+mail. Do not assume replies will arrive until incoming delivery is checked.
 
 Fill in real business email, address and payment instructions in backoffice
 Settings before issuing invoices. Prices/payments are whole TZS shillings.
 Do not invent tax IDs or rates. The printable document is an operational
 invoice; legal/fiscal suitability needs the business's own review. Issued
-invoices retain their recorded issuer/customer details.
+invoices retain their recorded issuer/customer details. Use a deliberately
+approved controlled inbox to verify the sender, reply destination, tracking
+link and PDF attachment before relying on the email flow for customers.
 
 11. CHECK A RELEASE AND RECOVER
 
@@ -488,8 +518,8 @@ Storage housekeeping
   actual/billable usage. Check Cloudflare metrics too. Alerts are not billing
   caps; email alerts require separate provider configuration.
 
-  The revised cleanup UI must be deployed before these actions are available.
-  Use its durable deletion/retry workflow; do not remove raw KV keys or D1
+  The cleanup UI is deployed; actual cloud cleanup still needs its separately
+  authorized verification. Use its durable deletion/retry workflow; do not remove raw KV keys or D1
   tables to make the dashboard smaller. Save authorized copies first if
   needed, then verify deletion jobs and allow usage metrics time to refresh.
   Detailed local steps: Fanaar-Storage-Cleanup.txt in the owner's workspace;
@@ -512,6 +542,10 @@ GitHub Pages custom domains:
 https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site
 Cloudflare Google identity provider:
 https://developers.cloudflare.com/cloudflare-one/integrations/identity-providers/google/
+Resend Free quotas:
+https://resend.com/docs/knowledge-base/account-quotas-and-limits
+Resend email event meanings:
+https://resend.com/docs/dashboard/emails/manage-emails
 
 Detailed backend setup: SETUP.txt in the separate private fanaar-backoffice
 repository.
