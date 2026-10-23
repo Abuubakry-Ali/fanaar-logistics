@@ -12,33 +12,29 @@ Customer website: https://fanaarlogistics.com/
 Public customer source: https://github.com/Abuubakry-Ali/fanaar-logistics
 Phone: +255 650 090 876
 WhatsApp: 255650090876
+Company email: info@fanaarlogistics.com
 
 Planned public API: https://api.fanaarlogistics.com
 Planned staff portal: https://admin.fanaarlogistics.com
 
-Planned addresses are not a claim that DNS, HTTPS, authentication or cloud
-resources are already active. The owner has supplied a Cloudflare account
-reference and chosen the first administrator; the private backoffice setup
-guide records that identity. The D1 database and private Standard KV photo
-namespace exist, with migrations 1-5 applied remotely. Zero Trust Free is
-active at $0/month. The Google project and OAuth web client are created;
-the Google provider is saved in Cloudflare and its identity-provider Test
-passed. The Worker/staff portal is now deployed behind a Google-only Access
-application with an owner-only allow policy. Actual owner login and the
-D1-backed production dashboard passed. Public quote/tracking endpoints are
-covered by approved exact-path Access exceptions. Anonymous staff-login
-redirect, CORS preflight, unknown-tracking JSON and wrong-origin checks
-passed. The API/admin repository variables are saved to the actual Worker
-origin. The customer frontend is pushed and published, and the live website
-passed a three-step quote submission with a resized JPEG. The staff portal
-showed the request/private image; an accepted zero-price QA quote generated
-tracking, and its shared link opened the correct same-page result. Copy
-tracking link confirmed Link copied. The clearly marked QA quote, cancelled
-test shipment and small photo are retained for owner review; no real booking,
-payment, invoice or email was created. Private backend source is uploaded.
-Local HTTP checks and 38 isolated tests passed. Cloud cleanup, invoice and
-payment flows remain locally tested only. Automatic email is not configured.
-R2 has not been activated and is not required for this launch.
+The custom API/admin addresses above are planned; use the confirmed deployed
+Worker origin in section 5 until their DNS and HTTPS are ready. The current
+customer website and own backoffice are deployed. Google owner login and
+the D1-backed dashboard passed. Live quote submission with a resized photo,
+private staff review, tracking and the shared tracking link also passed.
+Approved exact-path Access exceptions serve quotes and tracking; staff
+pages and staff APIs remain protected. Source is saved in the public
+customer repository and separate private backend repository.
+
+NEW ENHANCEMENTS ARE PREPARED LOCALLY, NOT YET A VERIFIED LIVE RELEASE:
+explicit Unguja/Pemba route choices, prominent optional quote addresses,
+company email links, the private booking-completion form, manual email/PDF
+tools and the decorative map ship. These require the matching backend
+migration/deployment, customer-API Access exception and manual frontend
+publication. Check the actual published site before treating them as live.
+Invoice/payment/cleanup checks do not yet constitute live customer use.
+Incoming email forwarding is not yet verified, and outbound portal email
+is not configured. R2 is not activated or required; photos use private KV.
 
 The public website remains on GitHub Pages. Saving code runs a Build check;
 publishing is a separate manual Deploy to GitHub Pages workflow. A local
@@ -65,7 +61,8 @@ explicitly identified as backoffice files. Use the intended repository
 checkout when preparing an update.
 
 src/config.js
-  CONTACT.phone and CONTACT.whatsapp; route cards; derived whatsappNumber;
+  CONTACT.phone, CONTACT.whatsapp and CONTACT.email; route cards;
+  derived whatsappNumber;
   SERVICE_API_URL from VITE_SERVICE_API_URL; ADMIN_LOGIN_URL from
   VITE_ADMIN_LOGIN_URL. These last two are public build-time addresses.
 src/main.jsx
@@ -74,7 +71,14 @@ src/main.jsx
   The tracking input accepts a shipment code, not a phone-number search.
 src/customer-portal.jsx
   Friendly multi-step quote form, success reference and tracking timeline.
-  Contact/route, cargo, photos and pickup details are separate form steps.
+  Contact, route and optional addresses are in step 1; cargo is in step 2;
+  address review and photos are in step 3. ROUTE_PAIRS controls the seven
+  explicit directional services. Shared dialog/field helpers are exported.
+src/booking-completion.jsx
+  Private second-stage collection/delivery details form. Reads a token from
+  the link fragment into memory, then removes the fragment from the address
+  bar. GET returns route/reference metadata, not saved contact/address data.
+  Requires review and confirmation before its one-use submission.
 src/customer-api.js
   Calls the configured API, handles failures and prepares/resizes photos.
   Its API base must be the Worker origin, not an endpoint ending in /api.
@@ -97,7 +101,9 @@ public/images/zanzibar-dhow.jpg
 public/images/tanzania-service-map.svg
   Actual geographic outline with Tanzania overview and enlarged coast,
   highlighting Dar es Salaam, Tanga, Unguja and Pemba. The map does not
-  automatically add routes or imply an office at each marker.
+  automatically add routes or imply an office at each marker. A decorative
+  ship follows an illustrative 14-second loop. Reduced-motion preferences
+  show a stationary ship. This is not GPS or a live-vessel display.
 public/images/credits.txt
   Photo and Natural Earth map sources. Preserve/update asset credits.
 index.html
@@ -125,7 +131,7 @@ The private backoffice SETUP.txt explains its own file map. The backend uses
 Worker code under src, D1 migrations, private Standard KV photos and a React staff
 app under admin. API.md is its detailed developer interface reference.
 
-3. CHANGE PHONE AND WHATSAPP
+3. CHANGE PHONE, WHATSAPP AND EMAIL
 
 1) Open the customer repository's src/config.js, or the canonical local file.
 2) Change only the confirmed business contact values:
@@ -133,6 +139,7 @@ app under admin. API.md is its detailed developer interface reference.
    export const CONTACT = {
      phone: '+255 650 090 876',
      whatsapp: '255650090876',
+     email: 'info@fanaarlogistics.com',
    };
 
 3) Use 255 instead of a Tanzanian local leading zero. Phone may contain a +
@@ -143,6 +150,10 @@ app under admin. API.md is its detailed developer interface reference.
    should be https://wa.me/255650090876. No test call/message is needed.
 6) Check the sticky top bar, contact dialog and lower call action on desktop
    and mobile. The top bar should remain available while scrolling.
+7) CONTACT.email appears as a clickable mailto link in the footer, contact
+   dialog and customer help links. It opens the visitor's email app; it
+   does not create a mailbox or prove forwarding is working. Set up and
+   verify receiving separately using Fanaar-Email-Forwarding.txt.
 
 The website contact setting and the backend's invoice Settings are separate.
 Update both when the business number changes. Issued invoices retain their
@@ -150,16 +161,30 @@ saved issuer details; changing the website does not rewrite old invoices.
 
 4. CHANGE ROUTES, MAP, WORDING, PHOTOS OR COLOURS
 
-Routes: edit ROUTES in src/config.js. Current route cards are Dar es Salaam
-to Zanzibar, Zanzibar to Dar es Salaam, and Zanzibar to Tanga. Other route
-wording in main.jsx, FAQ/footer and index.html is separate. The customer
-form's destination choices are in customer-portal.jsx; backend validation
-must also accept a newly confirmed destination. Review all together.
+Marketing route cards stay grouped in ROUTES in src/config.js: Dar es Salaam
+to Zanzibar, Zanzibar to Dar es Salaam, and Zanzibar to Tanga. Actual quote
+choices in ROUTE_PAIRS in src/customer-portal.jsx are explicit:
+  Dar es Salaam -> Zanzibar (Unguja)
+  Dar es Salaam -> Zanzibar (Pemba)
+  Zanzibar (Pemba) -> Zanzibar (Unguja)
+  Zanzibar (Pemba) -> Dar es Salaam
+  Zanzibar (Pemba) -> Tanga
+  Zanzibar (Unguja) -> Tanga
+  Zanzibar (Unguja) -> Dar es Salaam
+
+There is no Tanga-origin service or Unguja-to-Pemba service in this list.
+A grouped Zanzibar card must leave the island choice to the customer; it
+must not silently assume Unguja. A known mainland endpoint is prefilled.
+Changing the pickup city clears an incompatible destination. Keep these
+choices simple and review related FAQ/footer wording and backend rules when
+adding an authorized route. Do not add services based on the map animation.
 
 Map: edit public/images/tanzania-service-map.svg using verified positions.
 Keep the actual mainland/island outlines and both view scales consistent.
 Update CoastMap's alt text if content changes. ROUTES does not redraw the
-map. Preserve the Natural Earth information in credits.txt.
+map. Preserve the Natural Earth information in credits.txt, the illustration
+caption and the reduced-motion static fallback. The ship is decorative,
+aria-hidden and follows a fixed loop, not a schedule or tracking feed.
 
 Wording/logo: find the visible text or Brand in main.jsx. Customer form
 wording lives in customer-portal.jsx. Preserve JSX tags and accessibility
@@ -196,18 +221,22 @@ they are not private keys. A saved variable does not alter an already-built
 website. Rebuild and manually deploy after changing one.
 
 The API value is only the HTTPS origin, with no /api suffix. Customer code
-adds /api/quotes or /api/tracking/<code>. The staff value is the confirmed
+adds /api/quotes, /api/tracking/<code> or /api/bookings/details. The staff value is the confirmed
 portal entry page. An empty admin value hides its footer shortcut. An empty
 API value gives an unavailable message with phone/WhatsApp alternatives;
 it does not pretend to save customer data.
 
-The two customer dialogs use this API base; there are no separate external
+The customer dialogs use this API base; there are no separate external
 tracking/quote page destinations to configure. Do not paste a password,
 shared admin token or Resend secret into config.js or any VITE_ variable.
 
 On the backend, PUBLIC_ORIGIN must match the actual customer origin. On the
 current Worker origin, Access protects staff pages/assets and /api/admin/*;
-only the exact quote/tracking customer paths bypass staff login. Staff APIs
+only approved exact customer paths bypass staff login. Before releasing the
+private completion form, add the exact /api/bookings/details exception and
+allow its Authorization and Idempotency-Key request headers in CORS. That
+endpoint still verifies its private bearer token; it is not a public record
+lookup. Never bypass /api/admin/* or the whole Worker hostname. Staff APIs
 still require verified identity and active D1 membership. See the backoffice guide;
 do not weaken these checks to fix a browser error.
 
@@ -298,6 +327,12 @@ with kg/tons/lbs, volume and message. The friendlier form adds service
 preference, package quantity, dimensions, value, pickup/delivery addresses,
 preferred date and up to three package photos.
 
+For the QUOTE stage, pickup and delivery full addresses are OPTIONAL. A
+customer can request pricing with city/island endpoints without knowing the
+full collection address yet. The first step makes optional address boxes
+easy to find; the last step reviews them and provides Edit locations. Do
+not make these quote address boxes required when editing the form.
+
 Current uploads are JPEG/PNG/WebP photos only. Each prepared upload must
 be at most 1 MiB; input photos over 15 MiB are rejected and accepted photos
 are resized. PDF and Office documents are not supported in this first
@@ -310,6 +345,34 @@ with the customer. Public tracking is by that code, not by a phone number.
 In shipment detail, Copy tracking link copies the full main-website URL;
 Link copied confirms success. Paste it into a manual customer reply. This
 does not send an automatic email or WhatsApp message.
+
+Second stage: complete pickup and delivery details
+  This prepared enhancement is available only after the release steps in
+  section 1 are complete. After agreeing the quote and creating the booked
+  shipment, staff may issue the operational invoice and create a private
+  customer completion link from that shipment. Staff review the recipient
+  before sharing it manually. The link expires after seven days and can
+  also be revoked; create a fresh link when necessary.
+
+  The customer opens the link on the main Fanaar website and sees a popup
+  with the quote/booking reference, invoice number if present, route and
+  service. An invoice/reference number by itself cannot open the form.
+  The secret token is in the URL fragment, is removed from the address bar
+  after opening and stays only in page memory. Do not put private links in
+  screenshots, public issues, analytics or the public repository.
+
+  At this BOOKING stage, full pickup and delivery addresses are REQUIRED,
+  each including area/ward, street/building and a useful landmark. Contact
+  name and phone at BOTH ends, a preferred collection date today or later
+  in Tanzania, and a preferred time window are also required. Delivery notes
+  are optional. Customers review all details, explicitly confirm, then send.
+  The requested time is a preference; Fanaar must confirm availability.
+
+  Submission is one-use. The same retry key safely retrieves its receipt;
+  reopening a used link does not expose stored addresses or phone numbers.
+  Corrections go through staff. Staff can fill the same details in the
+  private shipment record. Collection/status advancement requires complete
+  booking details. Quote enquiries and public tracking remain separate.
 
 Staff can review requests; assign private carriers, contacts and departures;
 record the private vessel name on the relevant departure;
@@ -360,9 +423,21 @@ a form. Notifications marked queued are not delivered messages. SMS and
 automatic WhatsApp delivery are not included.
 
 For incoming info@fanaarlogistics.com forwarding, the owner still needs to
-supply the destination inbox. Use the registrar's forwarding procedure only
-when ready. Forwarding receives mail; it does not provide authenticated
+supply or confirm the destination inbox and verify a test message. Follow
+the companion Fanaar-Email-Forwarding.txt for the Porkbun steps; its filenames
+are portable, not machine-specific paths. Existing MX records alone do not
+prove the info forwarding rule is active. Forwarding receives mail; it does not provide authenticated
 outgoing domain mail. Manual replies from an ordinary Gmail account are fine.
+
+Prepared manual email/PDF tools still need publication and verification.
+Staff can download a customer-facing PDF invoice, prepare it for the
+device's Share PDF menu, or open the saved customer's WhatsApp chat with
+text only. Staff choose the app/recipient and attach the PDF themselves.
+An email draft cannot automatically attach the PDF; download and attach it
+manually. A portal send button requires a configured outgoing provider,
+reviewed recipient/message and explicit confirmation. Provider acceptance
+does not prove arrival in the customer's inbox. Saving a status alone does
+not send these manual messages. Supplier costs stay out of customer PDFs.
 
 Fill in real business email, address and payment instructions in backoffice
 Settings before issuing invoices. Prices/payments are whole TZS shillings.
@@ -380,6 +455,14 @@ Check desktop and mobile:
 - Known tracking code returns the right timeline/ETA; unknown codes fail safely.
 - Customer tracking shows no private carrier/collector/contact/payment/photo data.
 - Generated customer tracking links open the correct code on the main site.
+- Generic Zanzibar route cards ask for Unguja or Pemba; incompatible city
+  pairs are not offered and optional quote addresses can stay blank.
+- A private booking link opens its same-page form, removes its secret from
+  the address bar, requires both addresses/contacts, and shows a receipt.
+  Wrong, expired, revoked and used links do not disclose saved private data.
+- The map keeps all four labels readable, and reduced motion stops the ship.
+- Email contact links open the company address; incoming forwarding and
+  outgoing portal delivery are tested separately before being advertised.
 - Logged-out and unapproved staff users are denied; normal staff cannot manage
   owners/settings; approved owner and staff accounts have the expected access.
 - Invoice calculations, recorded payments, print layout and issuer details work.

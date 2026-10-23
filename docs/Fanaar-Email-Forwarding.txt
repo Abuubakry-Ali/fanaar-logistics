@@ -1,0 +1,46 @@
+FANAAR LOGISTICS - FREE INCOMING EMAIL FORWARDING
+Updated: 23 October 2026
+
+Company address: info@fanaarlogistics.com
+Domain provider: Porkbun
+
+WHAT THIS DOES
+Customers email info@fanaarlogistics.com. Porkbun forwards each message to
+an existing inbox you choose. It does not create a separate mailbox.
+Replies from that receiving inbox show its own address.
+
+CREATE THE FORWARD
+1. Sign in at https://porkbun.com/.
+2. Open ACCOUNT, then Domain Management.
+3. Find fanaarlogistics.com and click the envelope in its EMAIL column.
+4. On Email Hosting and Forwarding, find Porkbun Email Forwarding.
+5. Under Create a New Forwarding Address, enter:
+   Username: info
+   Forwarding destination: your existing receiving email address.
+6. Click Create Email Forward.
+7. Confirm Current Forwards lists info@fanaarlogistics.com and the right
+   destination. A DNS record alone does not create this forwarding rule.
+8. Test from a DIFFERENT email account than the receiving inbox. Check
+   Inbox and Spam in the destination account.
+
+CURRENT DNS CHECK
+The domain's MX records currently point to fwd1.porkbun.com and
+fwd2.porkbun.com. This confirms the mail-server routing, not whether an
+info forwarding rule or its receiving inbox has been configured.
+Do not change the website's DNS records for this forwarding procedure.
+
+WEBSITE CONTACT LINK
+The website's company email is maintained in src/config.js as CONTACT.email.
+A mailto link opens the visitor's email application to compose a message.
+Publish website changes through the documented GitHub Pages workflow.
+
+PORTAL EMAIL IS A SEPARATE SETUP
+Porkbun forwarding receives customer mail. It does not authorize the
+Fanaar portal to send updates or PDF invoices. Outgoing portal mail needs
+a configured sending service and verified company sender. Staff Google
+sign-in currently grants identity access only, not Gmail sending access.
+Until that connection is configured, use a prepared email draft or
+download the invoice PDF and attach it in your existing email app.
+
+OFFICIAL INSTRUCTIONS
+https://kb.porkbun.com/article/10-how-to-set-up-email-forwarding-service

@@ -4,6 +4,7 @@
 export const CONTACT = {
   phone: '+255 650 090 876',
   whatsapp: '255650090876',
+  email: 'info@fanaarlogistics.com',
 };
 
 // Configure the staff portal only after its protected deployment is ready.

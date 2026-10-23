@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowUpRight, ArrowRight, ArrowDown, Anchor, Package, Phone, Menu, X, Ship, MapPin, ShieldCheck, ChevronDown, Check, ExternalLink, MessageCircle, Navigation, MoveRight } from 'lucide-react';
+import { ArrowUpRight, ArrowRight, ArrowDown, Anchor, Package, Phone, Mail, Menu, X, Ship, MapPin, ShieldCheck, ChevronDown, Check, ExternalLink, MessageCircle, Navigation, MoveRight } from 'lucide-react';
 import { CONTACT, ROUTES, ADMIN_LOGIN_URL, whatsappNumber } from './config';
 import { QuoteDialog, TrackingDialog } from './customer-portal';
+import { BookingDetailsDialog, readBookingLink } from './booking-completion';
 import './styles.css';
 
 function Brand({ light = false }) {
@@ -34,6 +35,7 @@ function ContactDialog({ onClose }) {
     <div className="contact-options">
       {CONTACT.phone ? <a href={`tel:${CONTACT.phone.replace(/[^+\d]/g, '')}`}><Phone/><span>Call our team<strong>{CONTACT.phone}</strong></span><ArrowUpRight/></a> : <div><Phone/><span>Phone support<strong>Number coming soon</strong></span></div>}
       {whatsappNumber ? <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer"><MessageCircle/><span>Chat on WhatsApp<strong>Start a conversation</strong></span><ArrowUpRight/></a> : <div><MessageCircle/><span>WhatsApp<strong>Contact details coming soon</strong></span></div>}
+      {CONTACT.email && <a href={`mailto:${CONTACT.email}`}><Mail/><span>Email our team<strong>{CONTACT.email}</strong></span><ArrowUpRight/></a>}
     </div>
     <QuoteLink className="button button-primary" onNavigate={onClose}>Get a quote <ArrowUpRight size={18}/></QuoteLink><p className="portal-help">Send a quote request here. Our team will confirm the price and next steps.</p>
   </div></dialog>;
@@ -51,15 +53,29 @@ const faqs = [
 
 function App() {
   const linkedTracking = (new URLSearchParams(window.location.search).get('tracking') || '').trim().slice(0, 80);
+  const [bookingLink, setBookingLink] = useState(readBookingLink);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [modal, setModal] = useState(linkedTracking ? 'tracking' : null);
+  const [modal, setModal] = useState(bookingLink ? 'booking' : linkedTracking ? 'tracking' : null);
   const [activeFaq, setActiveFaq] = useState(0);
   const [tracking, setTracking] = useState(linkedTracking);
   const [quoteRoute, setQuoteRoute] = useState(null);
   const openQuote = route => { setQuoteRoute(route || null); setModal('quote'); setMenuOpen(false); };
-  const closeModal = React.useCallback(() => setModal(null), []);
+  const closeModal = React.useCallback(() => { setModal(null); setBookingLink(null); }, []);
   const contact = () => { setModal('contact'); setMenuOpen(false); };
   const closeMenu = () => setMenuOpen(false);
+  useEffect(() => {
+    const openLinkedBooking = () => {
+      const incoming = readBookingLink();
+      if (!incoming) return;
+      setBookingLink(incoming); setModal('booking'); setMenuOpen(false);
+      const address = new URL(window.location.href);
+      address.hash = '';
+      window.history.replaceState(window.history.state, '', address);
+    };
+    openLinkedBooking();
+    window.addEventListener('hashchange', openLinkedBooking);
+    return () => window.removeEventListener('hashchange', openLinkedBooking);
+  }, []);
   useEffect(() => {
     if (!menuOpen) return;
     const handleKey = event => { if (event.key === 'Escape') setMenuOpen(false); };
@@ -102,11 +118,12 @@ function App() {
 
       <section className="cta-section container"><div className="cta-graphic" aria-hidden="true"><svg viewBox="0 0 300 200"><path d="M-20 130Q80 30 170 100T340 100 M-30 155Q70 55 160 125T330 125 M-40 180Q60 80 150 150T320 150 M-50 205Q50 105 140 175T310 175" fill="none" stroke="currentColor" strokeWidth="1.3"/></svg></div><div><span className="eyebrow">YOUR NEXT SHIPMENT STARTS HERE</span><h2>Let’s make the connection.</h2><p>Tell us about your cargo. Our team will take care of the next steps.</p></div><div className="cta-actions"><QuoteLink className="button button-primary">Get a quote <ArrowUpRight size={18}/></QuoteLink>{CONTACT.phone ? <a className="cta-phone" href={`tel:${CONTACT.phone.replace(/[^+\d]/g, '')}`}><Phone size={17}/>{CONTACT.phone}<ArrowUpRight size={15}/></a> : <button className="cta-phone" onClick={contact}><Phone size={17}/>Talk to our team<ArrowUpRight size={15}/></button>}</div></section>
     </main>
-    <footer className="footer container"><div className="footer-top"><div><Brand/><p>Bringing our coast closer,<br/>one shipment at a time.</p></div><div className="footer-links"><span>EXPLORE</span><a href="#routes">Our routes</a><a href="#services">Our services</a><a href="#about">Why Fanaar</a></div><div className="footer-links"><span>HOW CAN WE HELP?</span><a href="#track">Track a package</a><QuoteLink>Get a quote</QuoteLink><button onClick={contact}>Phone & WhatsApp</button></div><div className="footer-coast"><span>CONNECTED BY THE COAST</span><p>Dar es Salaam <span>↔</span> Zanzibar<br/>Zanzibar <span>→</span> Tanga</p><div><MapPin size={14}/> Tanzania, East Africa</div></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Fanaar Logistics. All rights reserved.</span><div className="footer-bottom-actions"><span className="footer-motto">Local roots. Coastal connections.<Anchor size={13}/></span>{ADMIN_LOGIN_URL && <a className="footer-admin" href={ADMIN_LOGIN_URL} target="_blank" rel="noopener noreferrer" aria-label="Admin login — opens in a new tab">Admin login <ExternalLink size={12}/></a>}</div></div></footer>
+    <footer className="footer container"><div className="footer-top"><div><Brand/><p>Bringing our coast closer,<br/>one shipment at a time.</p></div><div className="footer-links"><span>EXPLORE</span><a href="#routes">Our routes</a><a href="#services">Our services</a><a href="#about">Why Fanaar</a></div><div className="footer-links"><span>HOW CAN WE HELP?</span><a href="#track">Track a package</a><QuoteLink>Get a quote</QuoteLink><button onClick={contact}>Phone & WhatsApp</button>{CONTACT.email && <a className="footer-email" href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>}</div><div className="footer-coast"><span>CONNECTED BY THE COAST</span><p>Dar es Salaam <span>↔</span> Zanzibar<br/>Zanzibar <span>→</span> Tanga</p><div><MapPin size={14}/> Tanzania, East Africa</div></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Fanaar Logistics. All rights reserved.</span><div className="footer-bottom-actions"><span className="footer-motto">Local roots. Coastal connections.<Anchor size={13}/></span>{ADMIN_LOGIN_URL && <a className="footer-admin" href={ADMIN_LOGIN_URL} target="_blank" rel="noopener noreferrer" aria-label="Admin login — opens in a new tab">Admin login <ExternalLink size={12}/></a>}</div></div></footer>
     <button className="floating-contact" aria-label={whatsappNumber ? 'Chat with Fanaar on WhatsApp' : 'Contact Fanaar Logistics'} onClick={contact}><MessageCircle size={23}/><span>Let’s talk</span></button>
     {modal === 'contact' && <ContactDialog onClose={closeModal}/>}
     {modal === 'quote' && <QuoteDialog route={quoteRoute} onClose={closeModal}/>}
     {modal === 'tracking' && <TrackingDialog code={tracking.trim()} onClose={closeModal}/>}
+    {modal === 'booking' && bookingLink && <BookingDetailsDialog key={bookingLink.token} token={bookingLink.token} reference={bookingLink.reference} onClose={closeModal}/>}
   </></QuoteContext.Provider>;
 }
 
