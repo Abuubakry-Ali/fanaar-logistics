@@ -26,12 +26,17 @@ Approved exact-path Access exceptions serve quotes and tracking; staff
 pages and staff APIs remain protected. Source is saved in the public
 customer repository and separate private backend repository.
 
-NEW ENHANCEMENTS ARE PREPARED LOCALLY, NOT YET A VERIFIED LIVE RELEASE:
+LATEST RELEASE IS PUBLISHED:
 explicit Unguja/Pemba route choices, prominent optional quote addresses,
 company email links, the private booking-completion form, manual email/PDF
-tools and the decorative map ship. These require the matching backend
-migration/deployment, customer-API Access exception and manual frontend
-publication. Check the actual published site before treating them as live.
+tools, categorized closed-request review and the decorative map ship.
+The backend database updates and deployment are complete. The owner approved
+the exact booking-completion Access exception; it is saved. Staff pages and
+staff APIs remain protected. The customer Pages deployment succeeded, and
+the actual live website shows the new route choices and contact links.
+Live synthetic booking completion passed: the same-page form saved required
+details into the protected staff record, then the marked test was closed
+with a reason. No live invoice, payment or email was created by that test.
 Invoice/payment/cleanup checks do not yet constitute live customer use.
 Incoming email forwarding is not yet verified, and outbound portal email
 is not configured. R2 is not activated or required; photos use private KV.
