@@ -498,8 +498,9 @@ Check desktop and mobile:
 - The map keeps all four labels readable, and reduced motion stops the ship.
 - Email contact links open the company address; incoming forwarding and
   outgoing portal delivery are tested separately before being advertised.
-- Logged-out and unapproved staff users are denied; normal staff cannot manage
-  owners/settings; approved owner and staff accounts have the expected access.
+- Logged-out and unapproved staff users are denied; Operators cannot manage supplier prices, financial reports or staff access.
+  Admins can manage business/invoice settings but cannot see or manage staff
+  accounts; Owners control access. Verify each role at the API as well as UI.
 - Invoice calculations, recorded payments, print layout and issuer details work.
 - Optional email is tested deliberately with a controlled inbox before use.
 
@@ -510,11 +511,11 @@ Back up D1 and private KV photos under the private backoffice procedure.
 
 Storage housekeeping
   After the customer confirms receipt, staff mark Delivered and review the
-  explicit photo/optional-details cleanup prompt. Status alone does not
+  explicit attachment/optional-details cleanup prompt. Status alone does not
   delete files. No automatic timed expiry or full-history purge is enabled.
   Core contact/order, tracking, accounting, invoices and payments stay.
-  The default alert is 90%, adjustable by the owner. It estimates this app's
-  recorded photo bytes, including pending deletion, not the whole account's
+  The default alert is 90%, adjustable by an Admin or Owner. It estimates this app's
+  recorded attachment bytes, including pending uploads/deletion, not the whole account's
   actual/billable usage. Check Cloudflare metrics too. Alerts are not billing
   caps; email alerts require separate provider configuration.
 
@@ -549,3 +550,15 @@ https://resend.com/docs/dashboard/emails/manage-emails
 
 Detailed backend setup: SETUP.txt in the separate private fanaar-backoffice
 repository.
+
+OPERATIONS UPDATE — 23 OCTOBER 2026
+
+The private booking completion popup now supports extra package details and
+private supporting attachments. Limits: 20 files total per customer case,
+including original photos; 1 MiB per file. Photos are resized. Accepted types:
+JPG, PNG, WebP, PDF, TXT, CSV, DOCX, XLSX. src/booking-attachments.js prepares
+files; src/booking-completion.jsx uploads them through the existing protected
+booking token path before saving the collection details. Staff uploads, notes,
+truck grouping and financial reports stay in the separate private backend.
+The map ship follows a dotted offshore path out and back with a fixed shape.
+The complete operations manual with screenshots is saved only locally.
