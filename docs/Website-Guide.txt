@@ -19,21 +19,25 @@ Planned staff portal: https://admin.fanaarlogistics.com
 Planned addresses are not a claim that DNS, HTTPS, authentication or cloud
 resources are already active. The owner has supplied a Cloudflare account
 reference and chosen the first administrator; the private backoffice setup
-guide records that identity. The D1 database and an empty Standard KV photo
+guide records that identity. The D1 database and private Standard KV photo
 namespace exist, with migrations 1-5 applied remotely. Zero Trust Free is
 active at $0/month. The Google project and OAuth web client are created;
 the Google provider is saved in Cloudflare and its identity-provider Test
 passed. The Worker/staff portal is now deployed behind a Google-only Access
-application with an owner-only allow policy. Actual owner login and an empty
+application with an owner-only allow policy. Actual owner login and the
 D1-backed production dashboard passed. Public quote/tracking endpoints are
-not yet anonymously verified. The owner confirmed the exact customer-path
-exceptions and a public bypass policy was saved; application binding and
-anonymous route checks are still pending. The customer website has not been
-updated/published for the new integration.
-Local Worker HTTP checks, including
-delayed KV cleanup, and 37 isolated tests passed. No cloud customer-record,
-email or photo test has been performed. Provider testing and the storage
-schema alone do not make the production screens live.
+covered by approved exact-path Access exceptions. Anonymous staff-login
+redirect, CORS preflight, unknown-tracking JSON and wrong-origin checks
+passed. The API/admin repository variables are saved to the actual Worker
+origin. The customer frontend is pushed and published, and the live website
+passed a three-step quote submission with a resized JPEG. The staff portal
+showed the request/private image; an accepted zero-price QA quote generated
+tracking, and its shared link opened the correct same-page result. Copy
+tracking link confirmed Link copied. The clearly marked QA quote, cancelled
+test shipment and small photo are retained for owner review; no real booking,
+payment, invoice or email was created. Private backend source is uploaded.
+Local HTTP checks and 38 isolated tests passed. Cloud cleanup, invoice and
+payment flows remain locally tested only. Automatic email is not configured.
 R2 has not been activated and is not required for this launch.
 
 The public website remains on GitHub Pages. Saving code runs a Build check;
@@ -41,7 +45,7 @@ publishing is a separate manual Deploy to GitHub Pages workflow. A local
 preview and any older separately hosted preview are different deployments.
 Verify the actual live website after each release.
 
-The prepared new customer UI uses its own quote and tracking dialogs, not another
+The customer UI uses its own quote and tracking dialogs, not another
 company's page or iframe. A quote creates a request; staff review and accept
 it, create a shipment, and share its separately generated tracking number.
 Public tracking shows the approved progress and dates without exposing
@@ -174,11 +178,12 @@ choose when to refresh their listings after publication.
 
 5. CONNECT OR CHANGE THE OWN API AND ADMIN ADDRESS
 
-Do this only after the Cloudflare deployment is ready and tested. The
-intended Worker origins are examples until confirmed live:
+The API/admin repository variables are already saved with the deployed
+Worker origin below. The customer source is pushed and the successful manual
+Pages deployment is live. Current values:
 
-  FANAAR_API_URL    https://api.fanaarlogistics.com
-  FANAAR_ADMIN_URL  https://admin.fanaarlogistics.com
+  FANAAR_API_URL    https://fanaar-backoffice.abuubakry-ali.workers.dev
+  FANAAR_ADMIN_URL  https://fanaar-backoffice.abuubakry-ali.workers.dev
 
 On GitHub open Settings > Secrets and variables > Actions > Variables.
 Create/update those REPOSITORY VARIABLES. The Pages workflow maps them to:
@@ -200,10 +205,10 @@ The two customer dialogs use this API base; there are no separate external
 tracking/quote page destinations to configure. Do not paste a password,
 shared admin token or Resend secret into config.js or any VITE_ variable.
 
-On the backend, PUBLIC_ORIGIN must match the actual customer origin and
-Access must protect the whole admin hostname. The public API hostname must
-allow quote/tracking requests without Google login. Staff APIs still require
-verified identity and active D1 staff membership. See the backoffice guide;
+On the backend, PUBLIC_ORIGIN must match the actual customer origin. On the
+current Worker origin, Access protects staff pages/assets and /api/admin/*;
+only the exact quote/tracking customer paths bypass staff login. Staff APIs
+still require verified identity and active D1 membership. See the backoffice guide;
 do not weaken these checks to fix a browser error.
 
 6. RUN LOCALLY AND BUILD
@@ -302,6 +307,9 @@ After a genuine API success the customer sees a quote reference. Staff
 review the quote, agree the price, mark it accepted and create the shipment.
 The shipment gets a separate unpredictable tracking number. Staff share it
 with the customer. Public tracking is by that code, not by a phone number.
+In shipment detail, Copy tracking link copies the full main-website URL;
+Link copied confirms success. Paste it into a manual customer reply. This
+does not send an automatic email or WhatsApp message.
 
 Staff can review requests; assign private carriers, contacts and departures;
 record the private vessel name on the relevant departure;
