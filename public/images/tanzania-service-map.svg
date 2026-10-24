@@ -1,9 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 500" role="img" aria-labelledby="map-title map-description">
 <title id="map-title">Fanaar Logistics service locations in Tanzania</title>
-<desc id="map-description">Geographic map of Tanzania with a larger coastal view highlighting only Dar es Salaam, Tanga, and the Zanzibar islands of Unguja and Pemba. A small decorative ship travels back and forth through the open-water channel without crossing the islands.</desc>
+<desc id="map-description">Geographic map of Tanzania with a larger coastal view highlighting only Dar es Salaam, Tanga, and the Zanzibar islands of Unguja and Pemba. A dotted line illustrates an offshore coastal journey.</desc>
 <metadata>Geography derived from Natural Earth 1:10m countries, lakes and populated places. Public domain. https://www.naturalearthdata.com/</metadata>
-<defs><clipPath id="country-clip"><rect x="16" y="98" width="222" height="310"/></clipPath><clipPath id="coast-clip"><rect x="254" y="96" width="346" height="332" rx="9"/></clipPath><path id="coastal-water-route" d="M411 378C405 368 402 362 398 358C389 349 378 339 370 331C360 321 357 313 357 303C354 288 354 277 360 260C367 243 378 228 393 218C404 211 412 203 415 193C419 182 415 170 410 163C404 159 397 158 389 156"/><g id="coastal-ship-icon"><circle r="16" fill="#fffefb" stroke="#d6e1d3"/><g fill="none" stroke="#173c3d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M-10 1-6 7H6L10 1 0-3Z" fill="#ed7654" stroke="#c86e50"/><path d="M-6-1v-7H5v7M0-8v-3M-4-5h2m4 0h2M-12 10q3 3 6 0 3 3 6 0 3 3 6 0 3 3 6 0"/></g></g></defs>
-<style>.coastal-ship-still{display:none}@media(prefers-reduced-motion:reduce){.coastal-ship-moving{display:none}.coastal-ship-still{display:block}}</style>
+<defs><clipPath id="country-clip"><rect x="16" y="98" width="222" height="310"/></clipPath><clipPath id="coast-clip"><rect x="254" y="96" width="346" height="332" rx="9"/></clipPath><path id="coastal-water-route" d="M411 378C405 368 402 362 398 358C389 349 378 339 370 331C360 321 357 313 357 303C354 288 354 277 360 260C367 243 378 228 393 218C404 211 412 203 415 193C419 188 425 186 429 182C427 173 417 165 410 163C404 159 397 158 389 156"/></defs>
 <rect width="620" height="500" fill="#f0f5f0"/>
 <g font-family="Arial, sans-serif" fill="#173c3d">
 <text x="25" y="78" font-size="11" font-weight="600" letter-spacing="1.2" fill="#6c8273">COUNTRY OVERVIEW</text>
@@ -68,9 +67,4 @@
 <text x="25" y="434" font-size="13" fill="#6b8170">Tanzania and Zanzibar</text>
 <text x="25" y="452" font-size="11" fill="#819486">Coast enlarged for clarity</text>
 <text x="270" y="452" font-size="10" fill="#819486">Illustrative coastal journey</text>
-<g aria-hidden="true" pointer-events="none" clip-path="url(#coast-clip)">
-<!-- One sea route, mirrored both ways. Ease into one-second destination stops; split Dar hold across the seamless repeat. Fixed icon: translation only. -->
-<g class="coastal-ship-moving"><animateMotion dur="24s" repeatCount="indefinite" calcMode="spline" keyPoints="0;0;0.33744587;0.33744587;0.80806158;0.80806158;1;1;0.80806158;0.80806158;0.33744587;0.33744587;0;0" keyTimes="0;0.02083333;0.14737553;0.1890422;0.36552309;0.40718976;0.47916667;0.52083333;0.59281024;0.63447691;0.8109578;0.85262447;0.97916667;1" keySplines="0 0 1 1;.42 0 .58 1;0 0 1 1;.42 0 .58 1;0 0 1 1;.42 0 .58 1;0 0 1 1;.42 0 .58 1;0 0 1 1;.42 0 .58 1;0 0 1 1;.42 0 .58 1;0 0 1 1" rotate="0"><mpath href="#coastal-water-route"/></animateMotion><use href="#coastal-ship-icon" transform="scale(.75)"/></g>
-<g class="coastal-ship-still" transform="translate(357 303)"><use href="#coastal-ship-icon" transform="scale(.75)"/></g>
-</g>
 </g></svg>

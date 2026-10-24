@@ -1,0 +1,9 @@
+/* The image uses object-fit:contain; this viewBox uses the same centered meet. */
+.coast-map-animation {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}

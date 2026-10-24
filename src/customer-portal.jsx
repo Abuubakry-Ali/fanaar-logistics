@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, Copy, ImagePlus, LoaderCircle, MapPin, Package, Phone, Ship, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, CheckCircle2, Copy, FileText, ImagePlus, LoaderCircle, MapPin, Package, Phone, Ship, X } from 'lucide-react';
 import { CONTACT, whatsappNumber } from './config';
 import { preparePhoto, serviceRequest } from './customer-api';
 import './customer-portal.css';
@@ -99,7 +99,7 @@ export function QuoteDialog({ route, onClose }) {
     finally { setSending(false); }
   }
   return <PortalDialog titleId="request-title" onClose={onClose} busy={sending}>
-    {result ? <div className="customer-success"><span className="customer-success-mark"><CheckCircle2 size={33}/></span><span className="eyebrow">YOUR REQUEST IS WITH US</span><h2 id="request-title" tabIndex="-1" ref={heading}>Thank you, {form.customerName.split(' ')[0]}.</h2><p>Our team will review your cargo details and contact you to confirm the quote and next steps.</p><div className="request-reference"><span>Your quote reference</span><strong>{result.reference}</strong><button type="button" className="text-button" onClick={async () => { try { await navigator.clipboard.writeText(result.reference); setCopied(true); } catch { setCopied(false); } }}><Copy size={14}/>{copied ? 'Copied' : 'Copy reference'}</button></div><p className="customer-note">This is your quote reference. Once your shipment is confirmed, we’ll share a separate tracking number.</p><button type="button" className="button button-primary" onClick={onClose}>Back to Fanaar <Check size={17}/></button><ContactFallback/></div> : <>
+    {result ? <div className="customer-success"><span className="customer-success-mark"><CheckCircle2 size={33}/></span><span className="eyebrow">YOUR REQUEST IS WITH US</span><h2 id="request-title" tabIndex="-1" ref={heading}>Thank you, {form.customerName.split(' ')[0]}.</h2><p>Our team will review your cargo details and contact you to confirm the quote and next steps.</p><div className="request-reference"><span>Your quote reference</span><strong>{result.reference}</strong><button type="button" className="text-button" onClick={async () => { try { await navigator.clipboard.writeText(result.reference); setCopied(true); } catch { setCopied(false); } }}><Copy size={14}/>{copied ? 'Copied' : 'Copy reference'}</button></div><p className="customer-note">Keep this reference. Enter it in the tracking box to check your quote status and follow your shipment once it is booked.</p><button type="button" className="button button-primary" onClick={onClose}>Back to Fanaar <Check size={17}/></button><ContactFallback/></div> : <>
       <div className="customer-heading"><span className="eyebrow">LET’S MOVE YOUR CARGO</span><h2 id="request-title" tabIndex="-1" ref={heading}>A quote, made simple.</h2><p>Tell us a little about your shipment. Our team will confirm the price with you.</p></div>
       <ol className="quote-progress" aria-label="Request progress">{['Your journey', 'Your cargo', 'Finishing touches'].map((label, index) => <li key={label} aria-current={step === index ? 'step' : undefined} className={step >= index ? 'active' : ''}><span>{step > index ? <Check size={13}/> : index + 1}</span>{label}</li>)}</ol>
       <form className="customer-form" onSubmit={submit}>
@@ -137,17 +137,29 @@ export function QuoteDialog({ route, onClose }) {
 }
 
 export function TrackingDialog({ code, onClose }) {
+  const quoteReference = /^FL-\d{8}-[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{10}$/i.test(code.trim());
   const [record, setRecord] = useState(null);
+  const [requestStatus, setRequestStatus] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    let active = true; setLoading(true); setError(''); setRecord(null);
-    serviceRequest(`/api/tracking/${encodeURIComponent(code)}`).then(data => { if (active) { if (!data.tracking?.code) throw new Error('We couldn’t confirm this shipment. Please contact our team.'); setRecord(data.tracking); } }).catch(failure => { if (active) setError(failure.message); }).finally(() => { if (active) setLoading(false); });
+    let active = true; setLoading(true); setError(''); setRecord(null); setRequestStatus(null);
+    serviceRequest(`/api/tracking/${encodeURIComponent(code)}`).then(data => { if (active) { if (data.tracking?.code) setRecord(data.tracking); else if (data.request?.reference) setRequestStatus(data.request); else throw new Error('We couldn’t confirm this reference. Please contact our team.'); } }).catch(failure => { if (active) setError(failure.message); }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [code, attempt]);
-  return <PortalDialog titleId="tracking-title" onClose={onClose} className="tracking-dialog"><div className="customer-heading"><span className="eyebrow">YOUR SHIPMENT’S JOURNEY</span><h2 id="tracking-title">A little peace of mind.</h2><p className="tracking-code">Tracking number <strong>{code}</strong></p></div>
-    {loading && <div className="tracking-loading" role="status"><LoaderCircle className="spin" size={26}/><p>Checking your shipment…</p></div>}
+  }, [code, attempt, quoteReference]);
+  const requestUpdates = {
+    received: ['Quote request received', 'Your request is with us. Our team will review it and contact you with a quotation.'],
+    reviewing: ['Quote request under review', 'Our team is reviewing your request and will contact you with the next steps.'],
+    quotation_ready: ['Quotation ready', 'Our team has prepared your quotation. Please contact us if you have not received it yet.'],
+    quotation_sent: ['Quotation sent', 'Your quotation has been sent to the email address you provided. Please check your inbox or contact our team.'],
+    booking_pending: ['Booking in progress', 'Your quote has been accepted. Our team is arranging the shipment, and journey updates will appear here once it is booked.'],
+    closed: ['Request closed', 'This request is closed. Please contact our team if you would like to discuss the next steps.'],
+  };
+  const requestUpdate = requestUpdates[requestStatus?.status] || ['Request update', 'Please contact our team for the latest information.'];
+  return <PortalDialog titleId="tracking-title" onClose={onClose} className="tracking-dialog"><div className="customer-heading"><span className="eyebrow">{requestStatus ? 'YOUR QUOTE REQUEST' : 'YOUR SHIPMENT’S JOURNEY'}</span><h2 id="tracking-title">A little peace of mind.</h2><p className="tracking-code">{quoteReference ? 'Reference' : 'Tracking number'} <strong>{code}</strong></p></div>
+    {loading && <div className="tracking-loading" role="status"><LoaderCircle className="spin" size={26}/><p>{quoteReference ? 'Checking your request…' : 'Checking your shipment…'}</p></div>}
+    {requestStatus && <><div className="shipment-status"><span className="customer-success-mark"><FileText size={25}/></span><div><span>Current status</span><strong>{requestUpdate[0]}</strong></div></div><p className="customer-note" role="status">{requestUpdate[1]}</p><p className="tracking-updated">Last updated {dateLabel(requestStatus.updatedAt || requestStatus.createdAt)}</p><ContactFallback/></>}
     {error && <div className="tracking-failure"><Package size={32}/><p className="customer-error" role="alert">{error}</p><button type="button" className="button button-outline" onClick={() => setAttempt(attempt + 1)}>Try again</button><ContactFallback/></div>}
     {record && <><div className={`shipment-status status-${record.status}`}><span className="customer-success-mark"><Package size={25}/></span><div><span>Current status</span><strong>{labels[record.status] || 'Shipment update'}</strong></div></div><div className="tracking-route"><MapPin size={18}/><strong>{record.from}</strong><ArrowRight size={17}/><strong>{record.to}</strong></div><div className="tracking-dates"><div><span>Picked up</span><strong>{dateLabel(record.pickupAt)}</strong></div><div><span>{record.deliveredAt ? 'Delivered' : 'Estimated delivery'}</span><strong>{dateLabel(record.deliveredAt || record.eta)}</strong></div></div>{!record.deliveredAt && <p className="customer-note">Delivery times are estimates. We’ll update this page as your shipment progresses.</p>}<h3 className="timeline-heading">Shipment updates</h3><ol className="shipment-timeline">{record.events.map((event, index) => <li key={`${event.occurredAt}-${index}`}><span className="timeline-dot"/><div><strong>{labels[event.status] || 'Shipment update'}</strong><p>{event.description}</p><time dateTime={event.occurredAt}>{dateLabel(event.occurredAt)}</time></div></li>)}</ol><p className="tracking-updated">Last updated {dateLabel(record.updatedAt)}</p><ContactFallback/></>}
   </PortalDialog>;

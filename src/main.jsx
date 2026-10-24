@@ -4,6 +4,7 @@ import { ArrowUpRight, ArrowRight, ArrowDown, Anchor, Package, Phone, Mail, Menu
 import { CONTACT, ROUTES, ADMIN_LOGIN_URL, whatsappNumber } from './config';
 import { QuoteDialog, TrackingDialog } from './customer-portal';
 import { BookingDetailsDialog, readBookingLink } from './booking-completion';
+import { CoastMap } from './CoastMap.jsx';
 import './styles.css';
 
 function Brand({ light = false }) {
@@ -41,12 +42,9 @@ function ContactDialog({ onClose }) {
   </div></dialog>;
 }
 
-function CoastMap() {
-  return <img className="coast-map" src={`${import.meta.env.BASE_URL}images/tanzania-service-map.svg`} alt="Geographic map of Tanzania highlighting Dar es Salaam, Tanga, and Zanzibar's Unguja and Pemba islands, with an enlarged coastal view"/>;
-}
 const faqs = [
   ['Where does Fanaar Logistics ship?', 'We transport cargo by sea from Dar es Salaam to Zanzibar, from Zanzibar to Dar es Salaam, and from Zanzibar to Tanga. Choose your route when preparing a quote request.'],
-  ['How do I track my package?', 'Enter the tracking number we shared after confirming your shipment. You’ll see its current status, pickup time, estimated delivery, and shipment updates here. Contact our team if you need help finding your number.'],
+  ['How do I track my package?', 'Enter your quote reference to check its progress. Once your shipment is booked, the same reference or the tracking number we share shows shipment status, pickup time, estimated delivery and journey updates. Prices and quotation documents are shared directly with you.'],
   ['How much will my shipment cost?', 'Your quote depends on the route, cargo type, weight, dimensions, and handling needs. Use Get a quote to fill in our enquiry form. Our team confirms the price before you ship.'],
   ['How do I arrange a shipment?', 'Click Get a quote and tell us your route, cargo details, and contact information. You can add package photos. Our team reviews your request and confirms the price, pickup arrangements, and next steps with you.'],
 ];
@@ -86,7 +84,7 @@ function App() {
   function handleTracking(event) {
     event.preventDefault();
     if (!tracking.trim()) {
-      event.currentTarget.elements.ref.setCustomValidity('Enter your tracking number.');
+      event.currentTarget.elements.ref.setCustomValidity('Enter your quote reference or tracking number.');
       event.currentTarget.elements.ref.reportValidity();
       return;
     }
@@ -102,7 +100,7 @@ function App() {
         <div className="hero-visual"><img src={`${import.meta.env.BASE_URL}images/cargo-teal.jpg`} alt="Cargo vessel surrounded by the turquoise waters of the Indian Ocean" fetchPriority="high"/><div className="photo-grain"/><div className="hero-image-label"><span className="status-dot"/> MADE FOR THE COAST</div><div className="visual-caption">Good things<br/>are on the way.</div><div className="shipment-card"><div className="shipment-icon"><Ship size={23}/></div><div><span>Connecting our coast</span><strong>Dar es Salaam <MoveRight size={17}/> Zanzibar</strong></div><span className="shipment-dot"/></div><div className="photo-coordinate">6°09′ S &nbsp; 39°12′ E</div></div>
       </section>
 
-      <section className="tracking-section container" id="track" aria-labelledby="tracking-heading"><div className="tracking-card"><div className="tracking-intro"><span className="tracking-icon"><Package size={27} strokeWidth={1.6}/></span><div><h2 id="tracking-heading">Where’s your cargo?</h2><p>A little peace of mind, in one click.</p></div></div><form className="tracking-form" onSubmit={handleTracking}><label className="sr-only" htmlFor="tracking-number">Tracking number</label><div className="tracking-input-wrap"><Package size={18} aria-hidden="true"/><input id="tracking-number" type="text" name="ref" value={tracking} onChange={event => { event.target.setCustomValidity(''); setTracking(event.target.value); }} placeholder="Enter your tracking number" required maxLength="100" autoComplete="off"/></div><button className="button button-dark" type="submit">Track package <ArrowRight size={18}/></button><span className="tracking-powered"><ShieldCheck size={12}/> Your shipment updates, right here</span></form></div></section>
+      <section className="tracking-section container" id="track" aria-labelledby="tracking-heading"><div className="tracking-card"><div className="tracking-intro"><span className="tracking-icon"><Package size={27} strokeWidth={1.6}/></span><div><h2 id="tracking-heading">Where’s your cargo?</h2><p>A little peace of mind, in one click.</p></div></div><form className="tracking-form" onSubmit={handleTracking}><label className="sr-only" htmlFor="tracking-number">Quote reference or tracking number</label><div className="tracking-input-wrap"><Package size={18} aria-hidden="true"/><input id="tracking-number" type="text" name="ref" value={tracking} onChange={event => { event.target.setCustomValidity(''); setTracking(event.target.value); }} placeholder="Quote reference or tracking number" required maxLength="100" autoComplete="off"/></div><button className="button button-dark" type="submit">Track package <ArrowRight size={18}/></button><span className="tracking-powered"><ShieldCheck size={12}/> Quote and shipment updates, right here</span></form></div></section>
 
       <section className="trust-strip container" aria-label="Our approach"><div><Ship size={20} strokeWidth={1.5}/><span>Coastal cargo specialists</span></div><span className="strip-divider"/><div><MapPin size={20} strokeWidth={1.5}/><span>Three routes. One trusted connection.</span></div><span className="strip-divider"/><div><MessageCircle size={20} strokeWidth={1.5}/><span>Real people, ready to help</span></div></section>
 

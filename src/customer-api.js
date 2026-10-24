@@ -13,7 +13,7 @@ export async function serviceRequest(path, options = {}) {
     });
     const data = await response.json().catch(() => null);
     if (!response.ok) {
-      if (response.status === 404) throw new Error('We couldn’t find that tracking number. Please check it or contact our team.');
+      if (response.status === 404) throw new Error('We couldn’t find that reference. Please check it or contact our team.');
       if (response.status === 429) throw new Error('There have been too many requests. Please wait a moment and try again.');
       throw new Error(data?.error?.message || 'We couldn’t complete your request. Please try again or contact our team.');
     }
