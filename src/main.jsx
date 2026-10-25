@@ -4,6 +4,7 @@ import { ArrowUpRight, ArrowRight, ArrowDown, Anchor, Package, Phone, Mail, Menu
 import { CONTACT, ROUTES, ADMIN_LOGIN_URL, whatsappNumber } from './config';
 import { QuoteDialog, TrackingDialog } from './customer-portal';
 import { BookingDetailsDialog, readBookingLink } from './booking-completion';
+import { SecureUploadDialog, readSecureUploadLink } from './secure-upload';
 import { CoastMap } from './CoastMap.jsx';
 import './styles.css';
 
@@ -52,20 +53,29 @@ const faqs = [
 function App() {
   const linkedTracking = (new URLSearchParams(window.location.search).get('tracking') || '').trim().slice(0, 80);
   const [bookingLink, setBookingLink] = useState(readBookingLink);
+  const [uploadLink, setUploadLink] = useState(readSecureUploadLink);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [modal, setModal] = useState(bookingLink ? 'booking' : linkedTracking ? 'tracking' : null);
+  const [modal, setModal] = useState(uploadLink ? 'upload' : bookingLink ? 'booking' : linkedTracking ? 'tracking' : null);
   const [activeFaq, setActiveFaq] = useState(0);
   const [tracking, setTracking] = useState(linkedTracking);
   const [quoteRoute, setQuoteRoute] = useState(null);
   const openQuote = route => { setQuoteRoute(route || null); setModal('quote'); setMenuOpen(false); };
-  const closeModal = React.useCallback(() => { setModal(null); setBookingLink(null); }, []);
+  const closeModal = React.useCallback(() => { setModal(null); setBookingLink(null); setUploadLink(null); }, []);
   const contact = () => { setModal('contact'); setMenuOpen(false); };
   const closeMenu = () => setMenuOpen(false);
   useEffect(() => {
     const openLinkedBooking = () => {
+      const upload = readSecureUploadLink();
+      if (upload) {
+        setUploadLink(upload); setBookingLink(null); setModal('upload'); setMenuOpen(false);
+        const address = new URL(window.location.href);
+        address.hash = '';
+        window.history.replaceState(window.history.state, '', address);
+        return;
+      }
       const incoming = readBookingLink();
       if (!incoming) return;
-      setBookingLink(incoming); setModal('booking'); setMenuOpen(false);
+      setBookingLink(incoming); setUploadLink(null); setModal('booking'); setMenuOpen(false);
       const address = new URL(window.location.href);
       address.hash = '';
       window.history.replaceState(window.history.state, '', address);
@@ -122,6 +132,7 @@ function App() {
     {modal === 'quote' && <QuoteDialog route={quoteRoute} onClose={closeModal}/>}
     {modal === 'tracking' && <TrackingDialog code={tracking.trim()} onClose={closeModal}/>}
     {modal === 'booking' && bookingLink && <BookingDetailsDialog key={bookingLink.token} token={bookingLink.token} reference={bookingLink.reference} onClose={closeModal}/>}
+    {modal === 'upload' && uploadLink && <SecureUploadDialog key={uploadLink.token} token={uploadLink.token} onClose={closeModal}/>}
   </></QuoteContext.Provider>;
 }
 
