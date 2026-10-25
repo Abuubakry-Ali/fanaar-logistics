@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Check, CheckCircle2, Copy, FileText, ImagePlus, 
 import { CONTACT, whatsappNumber } from './config';
 import { preparePhoto, serviceRequest } from './customer-api';
 import './customer-portal.css';
+import { TrackingJourney } from './tracking-journey';
 
 const locations = ['Dar es Salaam', 'Zanzibar (Unguja)', 'Zanzibar (Pemba)', 'Tanga'];
 const ROUTE_PAIRS = [
@@ -22,7 +23,6 @@ function prefillRoute(route) {
   const to = locations.includes(route?.to) && (!from || supportsRoute(from, route.to)) ? route.to : '';
   return { from, to };
 }
-const labels = { booked: 'Shipment booked', received: 'Package picked up', in_transit: 'On the way', arrived: 'Arrived at destination', ready_for_collection: 'Ready for collection', delivered: 'Delivered', cancelled: 'Shipment cancelled' };
 const dateLabel = value => value ? new Intl.DateTimeFormat('en-GB', { timeZone: 'Africa/Dar_es_Salaam', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) + ' EAT' : 'To be confirmed';
 
 export function PortalDialog({ titleId, onClose, busy = false, children, className = '' }) {
@@ -161,6 +161,6 @@ export function TrackingDialog({ code, onClose }) {
     {loading && <div className="tracking-loading" role="status"><LoaderCircle className="spin" size={26}/><p>{quoteReference ? 'Checking your request…' : 'Checking your shipment…'}</p></div>}
     {requestStatus && <><div className="shipment-status"><span className="customer-success-mark"><FileText size={25}/></span><div><span>Current status</span><strong>{requestUpdate[0]}</strong></div></div><p className="customer-note" role="status">{requestUpdate[1]}</p><p className="tracking-updated">Last updated {dateLabel(requestStatus.updatedAt || requestStatus.createdAt)}</p><ContactFallback/></>}
     {error && <div className="tracking-failure"><Package size={32}/><p className="customer-error" role="alert">{error}</p><button type="button" className="button button-outline" onClick={() => setAttempt(attempt + 1)}>Try again</button><ContactFallback/></div>}
-    {record && <><div className={`shipment-status status-${record.status}`}><span className="customer-success-mark"><Package size={25}/></span><div><span>Current status</span><strong>{labels[record.status] || 'Shipment update'}</strong></div></div><div className="tracking-route"><MapPin size={18}/><strong>{record.from}</strong><ArrowRight size={17}/><strong>{record.to}</strong></div><div className="tracking-dates"><div><span>Picked up</span><strong>{dateLabel(record.pickupAt)}</strong></div><div><span>{record.deliveredAt ? 'Delivered' : 'Estimated delivery'}</span><strong>{dateLabel(record.deliveredAt || record.eta)}</strong></div></div>{!record.deliveredAt && <p className="customer-note">Delivery times are estimates. We’ll update this page as your shipment progresses.</p>}<h3 className="timeline-heading">Shipment updates</h3><ol className="shipment-timeline">{record.events.map((event, index) => <li key={`${event.occurredAt}-${index}`}><span className="timeline-dot"/><div><strong>{labels[event.status] || 'Shipment update'}</strong><p>{event.description}</p><time dateTime={event.occurredAt}>{dateLabel(event.occurredAt)}</time></div></li>)}</ol><p className="tracking-updated">Last updated {dateLabel(record.updatedAt)}</p><ContactFallback/></>}
+    {record && <><TrackingJourney record={record}/><ContactFallback/></>}
   </PortalDialog>;
 }

@@ -37,6 +37,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check tracking display
+        run: npm test
+
       - name: Build website
         env:
           VITE_SERVICE_API_URL: ${{ vars.FANAAR_API_URL }}
