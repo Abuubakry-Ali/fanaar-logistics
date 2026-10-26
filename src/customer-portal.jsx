@@ -4,25 +4,9 @@ import { CONTACT, whatsappNumber } from './config';
 import { preparePhoto, serviceRequest } from './customer-api';
 import './customer-portal.css';
 import { TrackingJourney } from './tracking-journey';
+import {locations,pickupLocations,supportsRoute,prefillRoute,placeLabel} from './route-locations';
 
-const locations = ['Dar es Salaam', 'Zanzibar (Unguja)', 'Zanzibar (Pemba)', 'Tanga'];
-const ROUTE_PAIRS = [
-  ['Dar es Salaam', 'Zanzibar (Unguja)'],
-  ['Dar es Salaam', 'Zanzibar (Pemba)'],
-  ['Zanzibar (Pemba)', 'Zanzibar (Unguja)'],
-  ['Zanzibar (Pemba)', 'Dar es Salaam'],
-  ['Zanzibar (Pemba)', 'Tanga'],
-  ['Zanzibar (Unguja)', 'Tanga'],
-  ['Zanzibar (Unguja)', 'Dar es Salaam'],
-];
-const supportsRoute = (from, to) => ROUTE_PAIRS.some(([origin, destination]) => origin === from && destination === to);
-const pickupLocations = locations.filter(location => ROUTE_PAIRS.some(([origin]) => origin === location));
 const emptyForm = { customerName: '', company: '', phone: '', email: '', from: '', to: '', service: 'standard', cargoType: '', description: '', quantity: '', weightKg: '', weightUnit: 'kg', volume: '', lengthCm: '', widthCm: '', heightCm: '', declaredValue: '', pickupAddress: '', deliveryAddress: '', preferredDate: '', notes: '', website: '' };
-function prefillRoute(route) {
-  const from = pickupLocations.includes(route?.from) ? route.from : '';
-  const to = locations.includes(route?.to) && (!from || supportsRoute(from, route.to)) ? route.to : '';
-  return { from, to };
-}
 const dateLabel = value => value ? new Intl.DateTimeFormat('en-GB', { timeZone: 'Africa/Dar_es_Salaam', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) + ' EAT' : 'To be confirmed';
 
 export function PortalDialog({ titleId, onClose, busy = false, children, className = '' }) {
@@ -72,8 +56,6 @@ export function QuoteDialog({ route, onClose }) {
     setError('');
   };
   const destinationLocations = form.from ? locations.filter(location => supportsRoute(form.from, location)) : locations;
-  const choosePickupIsland = route?.from === 'Zanzibar' && !form.from && form.to === route?.to;
-  const chooseDestinationIsland = route?.to === 'Zanzibar' && !form.to && form.from === route?.from;
   const input = (name, attributes = {}) => <input name={name} value={form[name]} onChange={update} {...attributes}/>;
   async function addPhotos(event) {
     const files = Array.from(event.target.files || []); event.target.value = '';
@@ -110,8 +92,8 @@ export function QuoteDialog({ route, onClose }) {
           <Field label="Company (optional)">{input('company', { autoComplete: 'organization', maxLength: 160, placeholder: 'Business or organisation' })}</Field>
           <Field label="Phone number *" hint="We’ll use this to discuss your quote.">{input('phone', { type: 'tel', required: true, autoComplete: 'tel', maxLength: 30, placeholder: '+255 …' })}</Field>
           <Field label="Email (optional)" hint="Add an email if you’d like written updates.">{input('email', { type: 'email', autoComplete: 'email', maxLength: 254, placeholder: 'you@example.com' })}</Field>
-          <Field label="Pickup city / island *" hint={choosePickupIsland ? 'Zanzibar includes Unguja and Pemba. Please choose your pickup island.' : undefined}><select name="from" value={form.from} required onChange={update}><option value="">Choose pickup city or island</option>{pickupLocations.map(city => <option key={city}>{city}</option>)}</select></Field>
-          <Field label="Destination city / island *" hint={chooseDestinationIsland ? 'Zanzibar includes Unguja and Pemba. Please choose your destination island.' : !form.from ? 'Choose your pickup city or island first.' : undefined}><select name="to" value={form.to} required disabled={!form.from} onChange={update}><option value="">Choose destination city or island</option>{destinationLocations.map(city => <option key={city}>{city}</option>)}</select></Field>
+          <Field label="Pickup city / island *"><select name="from" value={form.from} required onChange={update}><option value="">Choose pickup city or island</option>{pickupLocations.map(city => <option key={city} value={city}>{placeLabel(city)}</option>)}</select></Field>
+          <Field label="Destination city / island *" hint={!form.from ? 'Choose your pickup city or island first.' : undefined}><select name="to" value={form.to} required disabled={!form.from} onChange={update}><option value="">Choose destination city or island</option>{destinationLocations.map(city => <option key={city} value={city}>{placeLabel(city)}</option>)}</select></Field>
           <Field label="Pickup address (optional)" hint="If known, include the street or building, area / ward and a nearby landmark. Add the pickup contact if different."><textarea name="pickupAddress" value={form.pickupAddress} onChange={update} rows="3" maxLength="500" autoComplete="section-pickup street-address" placeholder="Where should we collect the cargo?"/></Field>
           <Field label="Delivery address (optional)" hint="If known, include the street or building, area / ward and a nearby landmark. Add a contact name or phone if needed."><textarea name="deliveryAddress" value={form.deliveryAddress} onChange={update} rows="3" maxLength="500" autoComplete="section-delivery street-address" placeholder="Where should the cargo be delivered?"/></Field>
           <Field label="Service preference" full><div className="service-choice">{[['standard', 'Standard', 'A straightforward coastal shipment.'], ['express', 'Express request', 'Ask our team about the earliest option.']].map(([value, name, detail]) => <label key={value} className={form.service === value ? 'selected' : ''}><input type="radio" name="service" value={value} checked={form.service === value} onChange={update}/><span><strong>{name}</strong><small>{detail}</small></span></label>)}</div></Field>
@@ -125,7 +107,7 @@ export function QuoteDialog({ route, onClose }) {
           <Field label="Dimensions in cm (optional)" full><div className="dimension-inputs">{[['lengthCm', 'Length'], ['widthCm', 'Width'], ['heightCm', 'Height']].map(([name, label]) => <label key={name}><small>{label}</small>{input(name, { type: 'number', min: 0, max: 100000, step: 'any', inputMode: 'decimal', placeholder: label, 'aria-label': `${label} in centimetres` })}</label>)}</div></Field>
           <Field label="Message (optional)" hint="Describe the contents and any handling needs." full><textarea name="notes" value={form.notes} onChange={update} rows="3" maxLength="2000" placeholder="What would you like our team to know?"/></Field>
         </div></fieldset>}
-        {step === 2 && <fieldset><legend>Review your locations and add photos</legend><div className="journey-summary"><Ship size={22}/><div><strong>{form.from} <ArrowRight size={13}/> {form.to}</strong><span>{form.cargoType} · {form.service === 'express' ? 'Express requested' : 'Standard service'}</span></div><button type="button" className="text-button" onClick={() => { setStep(0); setError(''); }}>Edit locations</button></div><dl className="address-review" aria-label="Pickup and delivery address review"><div><dt>Pickup · {form.from}</dt><dd>{form.pickupAddress.trim() || "Pickup address to be confirmed"}</dd></div><div><dt>Delivery · {form.to}</dt><dd>{form.deliveryAddress.trim() || "Delivery address to be confirmed"}</dd></div></dl><div className="customer-grid">
+        {step === 2 && <fieldset><legend>Review your locations and add photos</legend><div className="journey-summary"><Ship size={22}/><div><strong>{placeLabel(form.from)} <ArrowRight size={13}/> {placeLabel(form.to)}</strong><span>{form.cargoType} · {form.service === 'express' ? 'Express requested' : 'Standard service'}</span></div><button type="button" className="text-button" onClick={() => { setStep(0); setError(''); }}>Edit locations</button></div><dl className="address-review" aria-label="Pickup and delivery address review"><div><dt>Pickup · {placeLabel(form.from)}</dt><dd>{form.pickupAddress.trim() || "Pickup address to be confirmed"}</dd></div><div><dt>Delivery · {placeLabel(form.to)}</dt><dd>{form.deliveryAddress.trim() || "Delivery address to be confirmed"}</dd></div></dl><div className="customer-grid">
           <Field label="Preferred pickup date (optional)">{input('preferredDate', { type: 'date' })}</Field>
           <div className="photo-field full"><span>Package photos (optional)</span><p>Up to 3 JPG, PNG or WebP photos. We’ll resize them for an easier upload.</p><div className="photo-list">{photos.map((photo, index) => <div className="photo-preview" key={`${photo.name}-${index}`}><img src={photo.preview} alt={`Package photo ${index + 1}`}/><button type="button" aria-label={`Remove package photo ${index + 1}`} onClick={() => setPhotos(photos.filter((_, i) => i !== index))}><X size={14}/></button></div>)}{photos.length < 3 && <label className="photo-add"><ImagePlus size={24}/><span>{photoBusy ? 'Preparing photos…' : 'Add photos'}</span><input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={photoBusy || sending} onChange={addPhotos} aria-label="Add package photos"/></label>}</div></div>
         </div><p className="customer-note"><CheckCircle2 size={16}/>Submitting asks for a quote. Our team will confirm the price and arrangements before you ship. Your photos are for our staff to review.</p></fieldset>}

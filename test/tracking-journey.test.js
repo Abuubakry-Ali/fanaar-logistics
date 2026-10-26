@@ -26,3 +26,8 @@ test('public milestones and pickup estimates use EAT and stay separate from actu
 test('older responses with absent optional fields or invalid dates remain readable without invented collection',()=>{
  const record=fixture({status:'in_transit',pickupAt:'invalid',eta:null}),tree=TrackingJourney({record}),text=flatten(tree);assert.match(text,/In transit/);assert.match(text,/To be confirmed/);assert.ok(!nodes(tree).some(node=>node.type==='span'&&flatten(node)==='Picked up'));
 });
+
+test('historical island route identifiers display short place names without mutating the response',()=>{
+ const record=fixture({from:'Zanzibar (Pemba)',to:'ZANZIBAR (UNGUJA)'}),before=JSON.stringify(record),text=flatten(TrackingJourney({record}));
+ assert.match(text,/Pemba/);assert.match(text,/Zanzibar/);assert.doesNotMatch(text,/Unguja|\(Pemba\)/);assert.equal(JSON.stringify(record),before);
+});

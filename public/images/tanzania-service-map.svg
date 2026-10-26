@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 500" role="img" aria-labelledby="map-title map-description">
 <title id="map-title">Fanaar Logistics service locations in Tanzania</title>
-<desc id="map-description">Geographic map of Tanzania with a larger coastal view highlighting only Dar es Salaam, Tanga, and the Zanzibar islands of Unguja and Pemba. A dotted line illustrates an offshore coastal journey.</desc>
+<desc id="map-description">Geographic map of Tanzania with a larger coastal view highlighting only Dar es Salaam, Tanga, Zanzibar and Pemba. A dotted line illustrates an offshore coastal journey.</desc>
 <metadata>Geography derived from Natural Earth 1:10m countries, lakes and populated places. Public domain. https://www.naturalearthdata.com/</metadata>
 <defs><clipPath id="country-clip"><rect x="16" y="98" width="222" height="310"/></clipPath><clipPath id="coast-clip"><rect x="254" y="96" width="346" height="332" rx="9"/></clipPath><path id="coastal-water-route" d="M411 378C405 368 402 362 398 358C389 349 378 339 370 331C360 321 357 313 357 303C354 288 354 277 360 260C367 243 378 228 393 218C404 211 412 203 415 193C419 188 425 186 429 182C427 173 417 165 410 163C404 159 397 158 389 156"/></defs>
 <rect width="620" height="500" fill="#f0f5f0"/>
@@ -50,12 +50,8 @@
 <g font-size="22" font-weight="600">
 <text x="340" y="153" text-anchor="end">Tanga</text>
 <text x="485" y="184">Pemba</text>
-<text x="446" y="295">Unguja</text>
+<text x="446" y="295">Zanzibar</text>
 <text x="421" y="399" font-size="20">Dar es Salaam</text>
-</g>
-<g font-size="14" fill="#61765f">
-<text x="485" y="204">Zanzibar</text>
-<text x="446" y="315">Zanzibar</text>
 </g>
 <g fill="#91a99c" font-size="11" letter-spacing="2.3" text-anchor="middle">
 <text x="532" y="350">INDIAN</text><text x="532" y="366">OCEAN</text>

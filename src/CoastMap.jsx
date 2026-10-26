@@ -80,7 +80,7 @@ export function CoastMap() {
   }, []);
 
   return <>
-    <img className="coast-map" src={`${import.meta.env.BASE_URL}images/tanzania-service-map.svg?v=static-single-ship-2`} alt="Geographic map of Tanzania highlighting Dar es Salaam, Tanga, and Zanzibar's Unguja and Pemba islands, with an enlarged coastal view"/>
+    <img className="coast-map" src={`${import.meta.env.BASE_URL}images/tanzania-service-map.svg?v=static-single-ship-3`} alt="Geographic map of Tanzania highlighting Dar es Salaam, Tanga, and Zanzibar and Pemba, with an enlarged coastal view"/>
     <svg className="coast-map-animation" viewBox="0 0 620 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
       <path ref={routeRef} d={WATER_ROUTE} fill="none" stroke="none"/>
       <g ref={shipRef} className="coast-map-ship" transform="translate(411 378)">

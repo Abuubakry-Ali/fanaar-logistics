@@ -1,5 +1,6 @@
 import React from 'react';
 import {ArrowRight,MapPin,Package} from 'lucide-react';
+import {placeLabel} from './route-locations';
 
 const labels={booked:'Shipment booked',received:'Cargo received',in_transit:'In transit',arrived:'Arrived at destination',cancelled:'Shipment cancelled',driver_on_way_to_pickup:'Driver on the way to pickup',picked_up:'Cargo picked up',at_collection_centre:'At Fanaar collection centre',shipped:'Shipped / in transit',arrived_destination:'Arrived at destination',at_sorting_facility:'At sorting facility',out_for_delivery:'Out for delivery',ready_for_collection:'Ready for customer collection',delivered:'Delivered'};
 const dateLabel=value=>{const parsed=value&&new Date(value);return parsed&&Number.isFinite(parsed.getTime())?new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Dar_es_Salaam',dateStyle:'medium',timeStyle:'short'}).format(parsed)+' EAT':'To be confirmed';};
@@ -8,7 +9,7 @@ export function TrackingJourney({record}){
  const expectedPickup=!record.pickedUpAt&&(record.pickupEtaAt||record.pickupEtaWindow);
  return <>
   <div className={`shipment-status status-${record.status}`}><span className="customer-success-mark"><Package size={25}/></span><div><span>Current status</span><strong>{labels[record.milestone]||labels[record.status]||'Shipment update'}</strong></div></div>
-  <div className="tracking-route"><MapPin size={18}/><strong>{record.from}</strong><ArrowRight size={17}/><strong>{record.to}</strong></div>
+  <div className="tracking-route"><MapPin size={18}/><strong>{placeLabel(record.from)}</strong><ArrowRight size={17}/><strong>{placeLabel(record.to)}</strong></div>
   <div className="tracking-dates">
    {record.pickupAt&&<div><span>Scheduled pickup</span><strong>{dateLabel(record.pickupAt)}</strong></div>}
    {expectedPickup&&<div><span>Estimated pickup</span><strong>{record.pickupEtaAt?dateLabel(record.pickupEtaAt):record.pickupEtaWindow}</strong>{record.pickupEtaAt&&record.pickupEtaWindow&&<p>{record.pickupEtaWindow}</p>}</div>}
