@@ -382,10 +382,12 @@ Second stage: complete pickup and delivery details
 
   At this BOOKING stage, full pickup and delivery addresses are REQUIRED,
   each including area/ward, street/building and a useful landmark. Contact
-  name and phone at BOTH ends, a preferred collection date today or later
-  in Tanzania, and a preferred time window are also required. Delivery notes
-  are optional. Customers review all details, explicitly confirm, then send.
-  The requested time is a preference; Fanaar must confirm availability.
+  name and phone at BOTH ends are also required. Preferred collection date
+  and time window are optional. If a date is supplied, it must be today or
+  later in Tanzania. Customers can review and submit with both timing fields
+  blank. Any supplied date/time is a request, not a guaranteed appointment;
+  Fanaar will contact the customer to confirm arrangements. Delivery notes
+  remain optional. Customers review all details, explicitly confirm, then send.
 
   Submission is one-use. The same retry key safely retrieves its receipt;
   reopening a used link does not expose stored addresses or phone numbers.
